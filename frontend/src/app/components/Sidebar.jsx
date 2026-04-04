@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { Heart, Trash2, Search, ListMusic, Play, Pause, SkipForward, SkipBack, Shuffle, Repeat, Repeat1, Home, Compass, Radio, Disc, Sparkles, ChevronLeft, ChevronRight, User, LogOut, Volume2, VolumeX, Palette } from "lucide-react";
+import { Heart, Trash2, Search, ListMusic, Play, Pause, SkipForward, SkipBack, Shuffle, Repeat, Repeat1, Home, Compass, Radio, Disc, Sparkles, ChevronLeft, ChevronRight, User, LogOut, Volume2, VolumeX, Palette, Mail } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { PLAYLISTS } from "../data";
 
