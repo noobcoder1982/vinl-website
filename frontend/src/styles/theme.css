@@ -286,6 +286,10 @@
     --card-shadow: 6px 6px 0px 0px #4C2215;
   }
 
+  .brutalist .theme-spotlight {
+    display: none !important;
+  }
+
   /* Brutalist Overrides: Hard, Blocky, Snappy */
   .brutalist * {
     transition-duration: 0ms !important;

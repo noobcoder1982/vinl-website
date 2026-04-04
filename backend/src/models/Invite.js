@@ -13,11 +13,11 @@ const inviteSchema = new mongoose.Schema({
   },
   roomCode: {
     type: String,
-    required: true
+    required: function() { return this.type !== 'follow'; }
   },
   type: {
     type: String,
-    enum: ['blend', 'live'],
+    enum: ['blend', 'live', 'follow'],
     default: 'blend'
   },
   status: {

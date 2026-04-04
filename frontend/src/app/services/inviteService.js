@@ -34,10 +34,48 @@ class InviteService {
         }
       });
       const data = await response.json();
-      return data.data || [];
+      return (data.data || []).map(i => ({ ...i, received: true }));
     } catch (err) {
       console.error("Fetch Invites Error:", err);
       return [];
+    }
+  }
+
+  async getSentInvites() {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user || !user.token) return [];
+
+    try {
+      const response = await fetch(`${API_URL}/sent`, {
+        headers: {
+          'Authorization': `Bearer ${user.token}`
+        }
+      });
+      const data = await response.json();
+      return (data.data || []).map(i => ({ ...i, received: false }));
+    } catch (err) {
+      console.error("Fetch Sent Error:", err);
+      return [];
+    }
+  }
+
+  async updateInviteStatus(inviteId, status) {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user || !user.token) return { success: false };
+
+    try {
+      const response = await fetch(`${API_URL}/${inviteId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${user.token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status })
+      });
+      return await response.json();
+    } catch (err) {
+      console.error("Update Invite Error:", err);
+      return { success: false };
     }
   }
 

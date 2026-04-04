@@ -78,8 +78,28 @@ export default function App() {
   const [activeTheme, setActiveTheme] = useState(getSavedTheme);
   const [accentColor, setAccentColor] = useState(getSavedAccent);
   
+  // Social Notifications
+  const [inboxCount, setInboxCount] = useState(0);
+  const [hasNewPost, setHasNewPost] = useState(false);
+
   const portalVinylRef = useRef(null);
   const audioRef = useRef(null);
+
+  // Polling for new invites
+  useEffect(() => {
+    if (!user) return;
+    const checkInvites = async () => {
+       const invites = await inviteService.getMyInvites();
+       if (invites.length > inboxCount) {
+          setHasNewPost(true);
+          setTimeout(() => setHasNewPost(false), 2000);
+       }
+       setInboxCount(invites.length);
+    };
+    checkInvites();
+    const interval = setInterval(checkInvites, 10000);
+    return () => clearInterval(interval);
+  }, [user, inboxCount]);
 
   const handleAuthSuccess = (userData) => { 
     setUser(userData); 
@@ -565,6 +585,8 @@ export default function App() {
           onToggleRepeat={() => setRepeatMode(prev => prev === "none" ? "all" : prev === "all" ? "one" : "none")}
           volume={volume}
           onVolumeChange={setVolume}
+          inboxCount={inboxCount}
+          hasNewPost={hasNewPost}
         />
         
         <div className="flex-1 relative m-[15px]">
@@ -677,7 +699,7 @@ export default function App() {
       </div>
 
       {/* ── MOBILE LAYOUT ── */}
-      <div className="flex md:hidden fixed inset-0 flex-col overflow-hidden" style={{ background: "#0e0e0e" }}>
+      <div className="flex md:hidden fixed inset-0 flex-col overflow-hidden bg-background">
         {/* Main content area - flex-1 fills remaining space between top and bottom bars */}
         <div className="flex-1 relative overflow-hidden min-h-0">
           <AnimatePresence mode="wait">

@@ -3,7 +3,7 @@ import { Heart, Trash2, Search, ListMusic, Play, Pause, SkipForward, SkipBack, S
 import { motion, AnimatePresence } from "motion/react";
 import { PLAYLISTS } from "../data";
 
-export function Sidebar({ activeNav, onNavChange, onBack, onForward, canGoBack, canGoForward, activePlaylist, onPlaylistSelect, song, isPlaying, onTogglePlay, onNext, onPrev, progress, onSeek, isFullScreen, onOpenFullscreen, themeColor, isDark, likedSongs, onToggleLike, user, onLogout, isShuffle, repeatMode, onToggleShuffle, onToggleRepeat, volume, onVolumeChange }) {
+export function Sidebar({ activeNav, onNavChange, onBack, onForward, canGoBack, canGoForward, activePlaylist, onPlaylistSelect, song, isPlaying, onTogglePlay, onNext, onPrev, progress, onSeek, isFullScreen, onOpenFullscreen, themeColor, isDark, likedSongs, onToggleLike, user, onLogout, isShuffle, repeatMode, onToggleShuffle, onToggleRepeat, volume, onVolumeChange, inboxCount = 0, hasNewPost = false }) {
   const progressBarRef = useRef(null);
   const isLiked = likedSongs?.includes(song?.id);
 
@@ -79,12 +79,27 @@ export function Sidebar({ activeNav, onNavChange, onBack, onForward, canGoBack, 
             onClick={() => onNavChange(item.name)}
             className={`px-[12px] py-[10px] rounded-[12px] text-left capitalize flex items-center gap-[12px] relative ${activeNav === item.name ? "bg-foreground/10 text-foreground" : "text-foreground/50 hover:text-foreground"}`}
             style={{ fontSize: "18px" }}>
-            <item.icon size={22} className={activeNav === item.name ? "opacity-100" : "opacity-40"} />
+            
+            <motion.div
+               animate={item.name === 'inbox' && hasNewPost ? {
+                  scale: [1, 1.25, 0.8, 1],
+                  rotate: [0, -10, 5, 0],
+                  filter: ["blur(0px)", "blur(2px)", "blur(0px)"]
+               } : {}}
+               transition={{ duration: 0.6, ease: "anticipate" }}
+            >
+               <item.icon size={22} className={activeNav === item.name ? "opacity-100" : "opacity-40"} />
+            </motion.div>
+
             {item.name}
-            {item.badge && (
-               <div className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-[8px] font-black text-white shadow-lg border-2 border-sidebar">
-                  !
-               </div>
+            {item.name === 'inbox' && inboxCount > 0 && (
+               <motion.div 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-[9px] font-black text-white shadow-lg border-2 border-[#111]"
+               >
+                  {inboxCount}
+               </motion.div>
             )}
           </button>
         ))}
