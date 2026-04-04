@@ -22,6 +22,7 @@ import { MobileCassettePlayer } from "./components/MobileCassettePlayer";
 import { MobileReelPlayer, MobileReelBar } from "./components/MobileReelPlayer";
 import { MobileHomeView } from "./components/MobileHomeView";
 import { BlendView } from "./components/BlendView";
+import { InboxView } from "./components/InboxView";
 import { LikedSongsView } from "./components/LikedSongsView";
 import { NotFoundView } from "./components/NotFoundView";
 
@@ -55,6 +56,7 @@ export default function App() {
   const [activeNav, setActiveNav] = useState("home");
   const [activePlaylist, setActivePlaylist] = useState(null);
   const [songs, setSongs] = useState([]);
+  const [blendQueue, setBlendQueue] = useState([]);
   const [currentSong, setCurrentSong] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -132,11 +134,26 @@ export default function App() {
           if (song) setCurrentSong(song);
        }
        if (typeof data.isPlaying === 'boolean') setIsPlaying(data.isPlaying);
+       
        if (typeof data.currentTime === 'number' && audioRef.current) {
-          audioRef.current.currentTime = data.currentTime;
-          setCurrentTime(data.currentTime);
+          const drift = Math.abs(audioRef.current.currentTime - data.currentTime);
+          // Only jump if it's more than 0.8s out of sync - avoids jitter!
+          if (drift > 0.8) {
+             audioRef.current.currentTime = data.currentTime;
+             setCurrentTime(data.currentTime);
+          }
        }
-       setTimeout(() => setIsRemoteUpdate(false), 100);
+       setTimeout(() => setIsRemoteUpdate(false), 200);
+    });
+
+    newSocket.on('new-reaction', (data) => {
+       // Show a toast or bubble if we had a global toast system, 
+       // but for now we'll pass this via a callback or state if needed.
+       // For BlendView, it has its own socket listener inside now.
+    });
+
+    newSocket.on('queue-synced', (newQueue) => {
+       setBlendQueue(newQueue);
     });
 
     return () => newSocket.close();
@@ -247,13 +264,12 @@ export default function App() {
         if (currentSong && !isAnimating) {
            songService.recordPlay(currentSong.id, user?._id || user?.id).then(res => {
               if (res?.data?.isAutoFavorite) {
-                 // Update local state if the server auto-favorited it
-                 setLikedSongs(prev => prev.includes(currentSong.id) ? prev : [...prev, currentSong.id]);
+                  setLikedSongs(prev => prev.includes(currentSong.id) ? prev : [...prev, currentSong.id]);
               }
            });
         }
         
-        // ── MEDIA SESSION API (Android/iOS Widget) ──
+        // ── MEDIA SESSION API ──
         if ('mediaSession' in navigator && currentSong) {
           navigator.mediaSession.metadata = new MediaMetadata({
             title: currentSong.title,
@@ -267,31 +283,30 @@ export default function App() {
           navigator.mediaSession.setActionHandler('previoustrack', handlePrev);
           navigator.mediaSession.setActionHandler('nexttrack', handleNext);
         }
-
-        // ── LIVE SYNC BROADCAST ──
-        if (socket && activeRoom && !isRemoteUpdate) {
-           socket.emit('sync-playback', {
-              roomId: activeRoom,
-              songId: currentSong.id,
-              isPlaying,
-              currentTime: audioRef.current?.currentTime || 0,
-              senderId: user?._id || user?.id || socket.id
-           });
-        }
     }
     else { 
         audio.pause();
-        if (socket && activeRoom && !isRemoteUpdate) {
-           socket.emit('sync-playback', {
-              roomId: activeRoom,
-              songId: currentSong?.id,
-              isPlaying: false,
-              currentTime: audioRef.current?.currentTime || 0,
-              senderId: user?._id || user?.id || socket.id
-           });
-        }
     }
-  }, [isPlaying, currentSong, handlePrev, handleNext, socket, activeRoom]);
+  }, [isPlaying, currentSong, handlePrev, handleNext]);
+
+  // ── LIVE SYNC BROADCAST HEARTBEAT ──
+  useEffect(() => {
+    if (!socket || !activeRoom || !isPlaying || isRemoteUpdate) return;
+
+    const interval = setInterval(() => {
+      if (audioRef.current) {
+        socket.emit('sync-playback', {
+          roomId: activeRoom,
+          songId: currentSong?.id,
+          isPlaying: true,
+          currentTime: audioRef.current.currentTime,
+          senderId: user?._id || user?.id || socket.id
+        });
+      }
+    }, 3000); // Sync every 3 seconds while playing
+
+    return () => clearInterval(interval);
+  }, [socket, activeRoom, isPlaying, currentSong, isRemoteUpdate]);
 
   // Handle PWA Shortcuts & Deep Linking
   useEffect(() => {
@@ -299,11 +314,8 @@ export default function App() {
     const viewToOpen = params.get('view');
     if (viewToOpen) {
        navigateTo(viewToOpen);
-       // Handle Room Param if present
        const room = params.get('room');
        if (room) setActiveRoom(room);
-       
-       // Clear the params so they don't stick on refresh
        window.history.replaceState({}, document.title, "/");
     }
   }, []);
@@ -619,11 +631,27 @@ export default function App() {
                   <BlendView 
                     user={user} 
                     songs={songs} 
+                    blendQueue={blendQueue}
+                    onUpdateQueue={(newQueue) => {
+                      setBlendQueue(newQueue);
+                      if (socket && activeRoom) {
+                        socket.emit('sync-queue', { roomId: activeRoom, queue: newQueue });
+                      }
+                    }}
                     onSongSelect={handleSongSelect} 
                     activeRoom={activeRoom} 
                     onJoinRoom={setActiveRoom}
                     socket={socket}
                   />
+                )}
+                {activeNav === "inbox" && (
+                   <InboxView 
+                     onJoinRoom={(code) => { 
+                       setActiveRoom(code); 
+                       setActiveNav("blend"); 
+                     }} 
+                     onBack={() => setActiveNav("home")} 
+                   />
                 )}
                 {activeNav === "themes" && (
                   <ThemesView 

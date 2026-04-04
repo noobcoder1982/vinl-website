@@ -71,15 +71,21 @@ export function Sidebar({ activeNav, onNavChange, onBack, onForward, canGoBack, 
           { name: "radio", icon: Radio },
           { name: "albums", icon: Disc },
           { name: "blend", icon: Sparkles },
+          { name: "inbox", icon: Mail, badge: true },
           { name: "themes", icon: Palette }
         ].map((item) => (
           <button
             key={item.name}
             onClick={() => onNavChange(item.name)}
-            className={`px-[12px] py-[10px] rounded-[12px] text-left capitalize flex items-center gap-[12px] ${activeNav === item.name ? "bg-foreground/10 text-foreground" : "text-foreground/50 hover:text-foreground"}`}
+            className={`px-[12px] py-[10px] rounded-[12px] text-left capitalize flex items-center gap-[12px] relative ${activeNav === item.name ? "bg-foreground/10 text-foreground" : "text-foreground/50 hover:text-foreground"}`}
             style={{ fontSize: "18px" }}>
             <item.icon size={22} className={activeNav === item.name ? "opacity-100" : "opacity-40"} />
             {item.name}
+            {item.badge && (
+               <div className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-[8px] font-black text-white shadow-lg border-2 border-sidebar">
+                  !
+               </div>
+            )}
           </button>
         ))}
 

@@ -8,6 +8,7 @@ import songRoutes from './src/routes/songRoutes.js';
 import playlistRoutes from './src/routes/playlistRoutes.js';
 import userRoutes from './src/routes/userRoutes.js';
 import aiRoutes from './src/routes/aiRoutes.js';
+import inviteRoutes from './src/routes/inviteRoutes.js';
 import errorHandler from './src/middleware/errorHandler.js';
 
 import http from 'http';
@@ -50,6 +51,7 @@ app.use('/api/songs', songRoutes);
 app.use('/api/playlists', playlistRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/invites', inviteRoutes);
 
 // Mount Global Error Handler
 app.use(errorHandler);
