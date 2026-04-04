@@ -1,0 +1,39 @@
+# 📦 Neural Social Workstation - Essential Ignores
+
+# Dependencies
+node_modules/
+jspm_packages/
+
+# Project secrets (CRITICAL: Do not push API keys)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env*
+
+# Production / Build Artifacts
+dist/
+build/
+*.pyc
+__pycache__/
+
+# Log Files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+tunnel.txt
+
+# System / OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local Dev
+.gemini/
+.agent/
+temp/
+tmp/
+*.swp

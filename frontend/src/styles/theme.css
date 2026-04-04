@@ -1,0 +1,395 @@
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --font-size: 16px;
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #0a0a0a;
+  --card-foreground: #ffffff;
+  --popover: #0a0a0a;
+  --popover-foreground: #ffffff;
+  --primary: #fbbf24;
+  --primary-foreground: #000000;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #ffffff;
+  --muted: #1a1a1a;
+  --muted-foreground: #a1a1aa;
+  --accent: #27272a;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: transparent;
+  --input-background: #0c0c0c;
+  --switch-background: #27272a;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: #fbbf24;
+  --chart-1: #3b82f6;
+  --chart-2: #10b981;
+  --chart-3: #f59e0b;
+  --chart-4: #6366f1;
+  --chart-5: #ec4899;
+  --radius: 0.625rem;
+  --sidebar: #050505;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #fbbf24;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #111111;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #fbbf24;
+}
+
+.dark {
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #0a0a0a;
+  --card-foreground: #ffffff;
+  --popover: #0a0a0a;
+  --popover-foreground: #ffffff;
+  --primary: #fbbf24;
+  --primary-foreground: #000000;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #ffffff;
+  --muted: #1a1a1a;
+  --muted-foreground: #a1a1aa;
+  --accent: #27272a;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: transparent;
+  --ring: #fbbf24;
+  --chart-1: #3b82f6;
+  --chart-2: #10b981;
+  --chart-3: #f59e0b;
+  --chart-4: #6366f1;
+  --chart-5: #ec4899;
+  --sidebar: #050505;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #fbbf24;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #111111;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #fbbf24;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /**
+  * Default typography styles for HTML elements (h1-h4, p, label, button, input).
+  * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.
+  */
+
+  html {
+    font-size: var(--font-size);
+  }
+
+  h1 {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h2 {
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  h4 {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  label {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  button {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  input {
+    font-size: var(--text-base);
+    font-weight: var(--font-weight-normal);
+    line-height: 1.5;
+  }
+
+  body {
+    transition: background-color 0.5s ease, color 0.5s ease;
+  }
+
+  /* --- THEME SYSTEM V2 --- */
+
+  /* 1. DARK (Default / Deep Obsidian) */
+  .dark {
+    --background: #000000;
+    --foreground: #ffffff;
+    --primary: #fbbf24;
+    --card: #0a0a0a;
+    --sidebar: #050505;
+    --border: rgba(255, 255, 255, 0.1);
+    --muted: #1a1a1a;
+    --muted-foreground: #a1a1aa;
+    --accent-glow: rgba(251, 191, 36, 0.15);
+    --glass-blur: 32px;
+    --glass-opacity: 0.1;
+  }
+
+  /* 2. ECO (Nature / Organic) */
+  .eco {
+    --background: #020402;
+    --foreground: #dcfce7;
+    --primary: #22c55e;
+    --card: rgba(10, 20, 10, 0.7);
+    --sidebar: #010501;
+    --border: rgba(34, 197, 94, 0.15);
+    --muted: #051505;
+    --muted-foreground: #86efac;
+    --accent-glow: rgba(34, 197, 94, 0.1);
+    --glass-blur: 40px;
+    --glass-opacity: 0.05;
+  }
+
+  /* 3. CYBER (Cyberpunk / Night City) */
+  .neon {
+    --background: #020204;
+    --foreground: #00ffcc;
+    --primary: #ff0055;
+    --card: rgba(6, 6, 8, 0.85);
+    --sidebar: #050507;
+    --border: rgba(255, 0, 85, 0.25);
+    --muted: #0a0a0f;
+    --muted-foreground: #008899;
+    --accent-glow: 0 0 15px rgba(0, 255, 204, 0.4), 0 0 30px rgba(0, 255, 204, 0.2);
+    --glass-blur: 16px;
+    --glass-opacity: 0.1;
+    --card-shadow: 0 0 20px rgba(255, 0, 85, 0.15);
+    --neon-text: 0 0 8px rgba(0, 255, 204, 0.8), 0 0 20px rgba(0, 255, 204, 0.3);
+  }
+
+  /* Cyber Theme Global Overrides - Neon Tube Effect */
+  .neon h1, .neon h2 {
+    color: transparent !important;
+    -webkit-text-stroke: 1.5px #fff;
+    text-shadow: 
+      0 0 5px #fff,
+      0 0 15px var(--primary),
+      0 0 30px var(--primary),
+      0 0 60px var(--primary),
+      0 0 90px var(--primary);
+    overflow: visible !important;
+    white-space: normal !important;
+    display: block !important;
+    -webkit-line-clamp: unset !important;
+  }
+  
+  .neon .text-primary {
+    text-shadow: var(--neon-text, none);
+  }
+  
+  .neon .border-primary {
+    box-shadow: 0 0 10px var(--primary), inset 0 0 5px var(--primary);
+  }
+
+  /* 4. WHITE (Premium Minimal / Apple Tier) */
+  .white {
+    --background: #f9f9fb;
+    --foreground: #111111;
+    --primary: var(--theme-accent, #3b82f6);
+    --card: #ffffff;
+    --sidebar: #f5f5f7;
+    --border: rgba(0, 0, 0, 0.06);
+    --muted: #f1f1f4;
+    --muted-foreground: #71717a;
+    --accent-glow: transparent;
+    --glass-blur: 8px; /* Softer hint of blur */
+    --glass-opacity: 0.95; /* Higher opacity for light-on-light cards */
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.04);
+  }
+
+  /* 5. RETRO BRUTALISM (Refined Palette) */
+  .brutalist {
+    --background: #F2EAC5; 
+    --foreground: #4C2215; 
+    --primary: #981D26; 
+    --card: #E5A632; 
+    --sidebar: #E5A632;
+    --border: #4C2215;
+    --muted: rgba(76, 34, 21, 0.1);
+    --muted-foreground: #981D26;
+    --accent-glow: transparent;
+    --glass-blur: 0px;
+    --glass-opacity: 1;
+    --card-shadow: 6px 6px 0px 0px #4C2215;
+  }
+
+  /* Brutalist Overrides: Hard, Blocky, Snappy */
+  .brutalist * {
+    transition-duration: 0ms !important;
+  }
+
+  .brutalist .glass,
+  .brutalist .bg-card,
+  .brutalist .rounded-2xl,
+  .brutalist .rounded-3xl,
+  .brutalist .rounded-\[40px\] {
+    border-radius: 4px !important;
+  }
+
+  .brutalist .glass,
+  .brutalist .bg-card {
+    border: 3px solid #4C2215 !important;
+    box-shadow: 6px 6px 0px #4C2215 !important;
+    background-color: #E5A632 !important;
+    color: #4C2215 !important;
+  }
+
+  /* Brutalist Circular Discs */
+  .brutalist #mini-vinyl-source,
+  .brutalist #fullscreen-vinyl-target {
+    border: 3px solid #000 !important;
+    box-shadow: 6px 6px 0px #000 !important;
+    border-radius: 50% !important;
+  }
+
+  /* Interactive Brutalist Click State */
+  .brutalist .glass:active,
+  .brutalist .bg-card:active {
+    transform: translate(6px, 6px) !important;
+    box-shadow: 0px 0px 0px #4C2215 !important;
+  }
+
+  /* Brutalist Mini Vinyl */
+  .brutalist #mini-vinyl-source,
+  .brutalist #fullscreen-vinyl-target {
+    border: 4px solid #4C2215 !important;
+    box-shadow: 8px 8px 0px #4C2215 !important;
+  }
+
+  /* MOBILE BRUTALIST REFINEMENTS */
+  .brutalist [class*="fixed"],
+  .brutalist [class*="absolute"] {
+    backdrop-filter: none !important;
+  }
+
+  .brutalist .fixed.bg-black {
+    background-color: #E5A632 !important; /* Guide Yellow/Gold */
+    border: 3px solid #4C2215 !important;
+    box-shadow: 6px 6px 0px #4C2215 !important;
+    color: #4C2215 !important;
+  }
+
+  .brutalist .fixed.bg-black button {
+    background-color: #981D26 !important; /* Guide Deep Red */
+    color: #fff !important;
+    border: 2px solid #4C2215 !important;
+    border-radius: 4px !important;
+  }
+
+  /* Niagara Gesture Nav in Brutalist */
+  .brutalist .fixed.right-0, 
+  .brutalist .fixed.left-0 {
+    background-color: transparent !important;
+  }
+
+  .brutalist .fixed.right-0 .bg-white,
+  .brutalist .fixed.left-0 .bg-white {
+    background-color: #E03C30 !important; /* Guide Mid Red */
+    border: 2px solid #4C2215 !important;
+    border-radius: 4px !important;
+  }
+
+  .brutalist .fixed.right-0 .text-white,
+  .brutalist .fixed.left-0 .text-white {
+    color: #4C2215 !important;
+    font-weight: 900 !important;
+  }
+
+  .brutalist .text-primary {
+    color: #981D26 !important;
+  }
+
+  .brutalist .border-primary {
+    border-color: #981D26 !important;
+  }
+
+  .brutalist .bg-primary {
+    background-color: #981D26 !important;
+  }
+
+  /* Retro Circular Elements */
+  .brutalist .animate-spin-slow {
+    border: 3px solid #000 !important;
+  }
+
+  /* UTILITIES */
+  .glass {
+    backdrop-filter: blur(var(--glass-blur));
+    background-color: var(--card); /* Switch to solid color for predictable white mode */
+    border: 1px solid var(--border);
+    box-shadow: var(--card-shadow, none);
+  }
+}
