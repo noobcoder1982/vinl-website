@@ -116,7 +116,10 @@ export default function App() {
 
   useEffect(() => {
     const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-    const apiBase = import.meta.env.VITE_API_URL || (isLocalhost ? "http://localhost:5001" : `https://${window.location.hostname}`);
+    // Priority: 1. Env Var, 2. Localhost (if dev), 3. Your production backend on Render
+    const apiBase = import.meta.env.VITE_API_URL || 
+                   (isLocalhost ? "http://localhost:5001" : "https://vinl-website.onrender.com");
+    
     // Strip trailing /api if present for socket connection
     const socketBase = apiBase.replace(/\/api\/?$/, "");
     const newSocket = io(socketBase);

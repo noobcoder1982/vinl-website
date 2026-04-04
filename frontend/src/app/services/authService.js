@@ -1,7 +1,7 @@
 // Get the base API URL based on the current environment
 const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-const BACKEND_HOST = isLocalhost ? "localhost" : window.location.hostname;
-const API_URL = `http://${BACKEND_HOST}:5001/api/users`;
+const VITE_API_URL = import.meta.env.VITE_API_URL || (isLocalhost ? "http://localhost:5001/api" : "https://vinl-website.onrender.com/api");
+const API_URL = `${VITE_API_URL.replace(/\/$/, "")}/users`;
 
 class AuthService {
   logError(error, context = "Network") {
