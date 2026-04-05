@@ -297,7 +297,6 @@ export function HomeView({ songs = [], currentSong, isPlaying, onSongSelect, use
          </section>
 
       </div>
-
       </div>
 
       <style>{`
