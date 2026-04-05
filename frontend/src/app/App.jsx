@@ -367,6 +367,7 @@ export default function App() {
   };
 
   const handleSongSelect = (song) => {
+    if (!song) return;
     if (song.id === currentSong?.id) { setIsPlaying((p) => !p); }
     else { setCurrentSong(song); setCurrentTime(0); setIsPlaying(true); }
   };
@@ -607,7 +608,7 @@ export default function App() {
           hasNewPost={hasNewPost}
         />
         
-        <div className="flex-1 relative m-[15px]">
+        <div className="flex-1 relative m-[15px] ml-[15px] h-[calc(100%-30px)] bg-card border border-border rounded-[24px] overflow-hidden shadow-sm">
           <AnimatePresence mode="wait">
             {view !== "fullscreen" && (
               <motion.div 
@@ -627,6 +628,7 @@ export default function App() {
                     user={user}
                     onNavChange={navigateTo}
                     onLogout={handleLogout}
+                    themeColor={themeColor}
                   />
                 )}
                 {activeNav === "discover" && (
@@ -878,6 +880,8 @@ export default function App() {
             >
               <FullscreenPlayerView 
                 song={currentSong}
+                songs={songs}
+                activeTheme={activeTheme}
                 isPlaying={isPlaying}
                 onTogglePlay={() => setIsPlaying((p) => !p)}
                 onBack={() => runVinylTransition("home")}
@@ -897,6 +901,7 @@ export default function App() {
                 repeatMode={repeatMode}
                 onToggleShuffle={() => setIsShuffle(!isShuffle)}
                 onToggleRepeat={() => setRepeatMode(prev => prev === "none" ? "all" : prev === "all" ? "one" : "none")}
+                onSongSelect={handleSongSelect}
               />
             </motion.div>
           )
