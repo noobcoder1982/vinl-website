@@ -124,31 +124,27 @@ export function MobileReelPlayer({
       {/* Metadata */}
       <div className="text-center mb-8 relative px-10">
          <button className="absolute left-0 top-1">
-           <MessageSquare size={24} color="#0a0a0a" strokeWidth={2.5} />
+            <MessageSquare size={24} color="#0a0a0a" strokeWidth={2.5} />
          </button>
          <h2 className="text-xl font-black text-[#0a0a0a] tracking-tight truncate">{song?.title || "Unknown Tape"}</h2>
          <p className="text-sm font-bold text-[#0a0a0a]/40 mt-1">{song?.artist || "Analog Signal"}</p>
          <button onClick={onToggleLike} className="absolute right-0 top-1">
-           <Heart size={24} className={isLiked ? "fill-[#0a0a0a] text-[#0a0a0a]" : "text-[#0a0a0a]"} strokeWidth={2.5} />
+            <Heart size={24} className={isLiked ? "fill-[#0a0a0a] text-[#0a0a0a]" : "text-[#0a0a0a]"} strokeWidth={2.5} />
          </button>
       </div>
 
-      {/* Abstract Waveform & Scrubber */}
       <div className="w-full h-32 relative mb-4">
-         {/* Fake Waveform Lines */}
          <div className="absolute inset-0 flex items-center justify-between px-2 opacity-10">
             {Array.from({ length: 40 }).map((_, i) => (
               <div key={i} className="w-[2px] bg-black rounded-full" style={{ height: `${Math.max(20, Math.random() * 100)}%` }} />
             ))}
          </div>
-         {/* Vertical Playhead Cursor */}
          <div className="absolute top-0 bottom-0 w-[1px] bg-black left-1/2 -translate-x-1/2">
             <div className="absolute top-1/2 -translate-y-1/2 -left-[6px] w-[6px] h-10 bg-black rounded-l-md" />
             <div className="absolute top-1/2 -translate-y-1/2 -left-[8px] w-full h-[1px] bg-black scale-x-150" />
          </div>
       </div>
 
-      {/* Time & Device Info */}
       <div className="flex justify-between items-center px-2 mb-auto font-black text-[13px] text-[#0a0a0a]">
          <span>{formatTime(elapsed)}</span>
          <div className="flex items-center gap-2 opacity-30">
@@ -158,17 +154,14 @@ export function MobileReelPlayer({
          <span>{formatTime(totalSecs)}</span>
       </div>
 
-      {/* Bottom Interface (Dials) */}
       <div className="flex justify-between items-center mt-6">
          <Dial isPlaying={isPlaying} onClick={onPrev} />
          <Dial isPlaying={isPlaying} onClick={onTogglePlay} />
       </div>
 
-      {/* Tap Overlay for Playback */}
       <div className="absolute bottom-[200px] left-1/2 -translate-x-1/2 bg-black text-white px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest opacity-0 hover:opacity-10 pointer-events-none transition-opacity">
          Tap dials to Play / Skip
       </div>
-
     </motion.div>
   );
 }

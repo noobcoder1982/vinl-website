@@ -21,6 +21,7 @@ import { MobilePlayerBar, MobileNav } from "./components/MobileUI";
 import { MobileCassettePlayer } from "./components/MobileCassettePlayer";
 import { MobileReelPlayer, MobileReelBar } from "./components/MobileReelPlayer";
 import { MobileHomeView } from "./components/MobileHomeView";
+import { MobileStudioSync, MobileStudioBar } from "./components/MobileStudioSync";
 import { BlendView } from "./components/BlendView";
 import { InboxView } from "./components/InboxView";
 import { LikedSongsView } from "./components/LikedSongsView";
@@ -32,8 +33,8 @@ const getSavedTheme = () => {
 };
 
 const getSavedAccent = () => {
-  if (typeof window === 'undefined') return '#3b82f6';
-  return localStorage.getItem('vinyl-accent') || '#3b82f6';
+  if (typeof window === 'undefined') return '#981D26';
+  return localStorage.getItem('vinyl-accent') || '#981D26';
 };
 
 function GenericView({ title, icon: Icon }) {
@@ -778,7 +779,14 @@ export default function App() {
         </div>
 
         {/* Bottom Player Bar */}
-        {activeTheme === "f4" ? (
+        {activeTheme === "studio" ? (
+          <MobileStudioBar
+            song={currentSong}
+            isPlaying={isPlaying}
+            onTogglePlay={() => setIsPlaying(p => !p)}
+            onOpenFullscreen={() => runVinylTransition("fullscreen")}
+          />
+        ) : activeTheme === "f4" ? (
           <MobileReelBar
             song={currentSong}
             isPlaying={isPlaying}
@@ -806,42 +814,58 @@ export default function App() {
       <AnimatePresence>
         {view === "fullscreen" && (
           isMobile ? (
-            activeTheme === "f4" ? (
-              <MobileReelPlayer
-                key="reel-player"
-                song={currentSong}
-                isPlaying={isPlaying}
-                onTogglePlay={() => setIsPlaying((p) => !p)}
-                onBack={() => setView("home")}
-                onNext={handleNext}
-                onPrev={handlePrev}
-                progress={progress}
-                currentTime={currentTime}
-                onSeek={handleSeek}
-                isLiked={likedSongs.includes(currentSong?.id)}
-                onToggleLike={() => toggleLike(currentSong?.id)}
-              />
+            activeTheme === "studio" ? (
+               <MobileStudioSync
+                 key="studio-player"
+                 song={currentSong}
+                 isPlaying={isPlaying}
+                 onTogglePlay={() => setIsPlaying((p) => !p)}
+                 onBack={() => setView("home")}
+                 onNext={handleNext}
+                 onPrev={handlePrev}
+                 progress={progress}
+                 currentTime={currentTime}
+                 onSeek={handleSeek}
+                 isLiked={likedSongs.includes(currentSong?.id)}
+                 onToggleLike={() => toggleLike(currentSong?.id)}
+                 audioElement={audioRef.current}
+               />
+            ) : activeTheme === "f4" ? (
+               <MobileReelPlayer
+                 key="reel-player"
+                 song={currentSong}
+                 isPlaying={isPlaying}
+                 onTogglePlay={() => setIsPlaying((p) => !p)}
+                 onBack={() => setView("home")}
+                 onNext={handleNext}
+                 onPrev={handlePrev}
+                 progress={progress}
+                 currentTime={currentTime}
+                 onSeek={handleSeek}
+                 isLiked={likedSongs.includes(currentSong?.id)}
+                 onToggleLike={() => toggleLike(currentSong?.id)}
+               />
             ) : (
-              <MobileCassettePlayer
-                key="cassette-player"
-                song={currentSong}
-                isPlaying={isPlaying}
-                onTogglePlay={() => setIsPlaying((p) => !p)}
-                onBack={() => setView("home")}
-                onNext={handleNext}
-                onPrev={handlePrev}
-                progress={progress}
-                currentTime={currentTime}
-                onSeek={handleSeek}
-                themeColor={themeColor}
-                isLiked={likedSongs.includes(currentSong?.id)}
-                onToggleLike={() => toggleLike(currentSong?.id)}
-                isShuffle={isShuffle}
-                repeatMode={repeatMode}
-                songs={songs}
-                onToggleShuffle={() => setIsShuffle(!isShuffle)}
-                onToggleRepeat={() => setRepeatMode(prev => prev === "none" ? "all" : prev === "all" ? "one" : "none")}
-              />
+               <MobileCassettePlayer
+                 key="cassette-player"
+                 song={currentSong}
+                 isPlaying={isPlaying}
+                 onTogglePlay={() => setIsPlaying((p) => !p)}
+                 onBack={() => setView("home")}
+                 onNext={handleNext}
+                 onPrev={handlePrev}
+                 progress={progress}
+                 currentTime={currentTime}
+                 onSeek={handleSeek}
+                 themeColor={themeColor}
+                 isLiked={likedSongs.includes(currentSong?.id)}
+                 onToggleLike={() => toggleLike(currentSong?.id)}
+                 isShuffle={isShuffle}
+                 repeatMode={repeatMode}
+                 songs={songs}
+                 onToggleShuffle={() => setIsShuffle(!isShuffle)}
+                 onToggleRepeat={() => setRepeatMode(prev => prev === "none" ? "all" : prev === "all" ? "one" : "none")}
+               />
             )
           ) : (
             <motion.div
