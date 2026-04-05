@@ -136,6 +136,23 @@ export default function App() {
      localStorage.setItem('vinyl-accent', accentColor);
   }, [accentColor]);
 
+  // –– DYNAMIC BROWSER TAB TITLE PULSE ––
+  useEffect(() => {
+    let interval;
+    if (isPlaying && currentSong) {
+      let showingSong = true;
+      interval = setInterval(() => {
+        document.title = showingSong 
+          ? `▶ ${currentSong.title} — Vinl.` 
+          : "Vinl. — Social Synergy";
+        showingSong = !showingSong;
+      }, 3000);
+    } else {
+      document.title = "Vinl. — Social Synergy";
+    }
+    return () => clearInterval(interval);
+  }, [isPlaying, currentSong]);
+
   useEffect(() => {
     const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
     // Priority: 1. Env Var, 2. Localhost (if dev), 3. Your production backend on Render
