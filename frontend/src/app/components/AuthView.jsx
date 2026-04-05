@@ -305,6 +305,17 @@ export function AuthView({ onAuthSuccess, onBack }) {
             {loading && <Loader2 size={18} className="animate-spin" />}
             {tab === "signup" ? (loading ? "Joining..." : "Join Now") : (loading ? "Entering..." : "Secure Login")}
           </button>
+
+          {/* FAKE LOGIN / GUEST BYPASS (Only for Local/Dev) */}
+          {(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && (
+             <button
+               type="button"
+               onClick={() => onAuthSuccess({ username: "Guest_User", email: "guest@vinl.local", role: "developer" })}
+               className="w-full h-[56px] rounded-[18px] border-2 border-primary/20 text-primary text-[12px] font-black uppercase tracking-[4px] hover:bg-primary hover:text-black transition-all mt-4"
+             >
+                Dev Bypass: Guest Access
+             </button>
+          )}
         </form>
 
         {/* Footer */}

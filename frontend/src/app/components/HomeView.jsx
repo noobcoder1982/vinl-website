@@ -3,7 +3,7 @@ import {
   Play, Pause, Heart, Sparkles, Clock, Zap, Radio, 
   TrendingUp, Activity, Moon, Sun, Coffee, Flame, Headphones,
   Users, PlayCircle, MoreHorizontal, LogIn, User as UserIcon,
-  ChevronRight, ArrowRight, Search
+  ChevronRight, ArrowRight, Search, LogOut
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { SongCard } from "./SongCard";
@@ -47,9 +47,6 @@ export function HomeView({ songs = [], currentSong, isPlaying, onSongSelect, use
          </div>
 
          <div className="flex items-center gap-6">
-            <button className="w-12 h-12 rounded-2xl bg-foreground/[0.03] border border-foreground/[0.05] flex items-center justify-center text-foreground/40 hover:text-foreground transition-all hover:bg-foreground/[0.06]">
-               <Search size={20} />
-            </button>
             <AnimatePresence mode="wait">
                {user ? (
                  <motion.div 
@@ -57,13 +54,27 @@ export function HomeView({ songs = [], currentSong, isPlaying, onSongSelect, use
                    initial={{ opacity: 0, x: 10 }}
                    animate={{ opacity: 1, x: 0 }}
                    exit={{ opacity: 0, x: -10 }}
-                   className="flex items-center gap-4 bg-foreground/[0.03] border border-foreground/[0.05] rounded-full p-1.5 pl-4 pr-4 hover:bg-foreground/[0.06] transition-all cursor-pointer group"
+                   className="flex items-center gap-4 group/logout"
                  >
-                    <span className="text-[11px] font-black uppercase tracking-[2px] opacity-40 group-hover:opacity-100 transition-opacity">
-                       {user.username || 'Syncing...'}
-                    </span>
-                    <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[12px] font-black border-2 border-background">
-                       {(user.username || 'V')[0].toUpperCase()}
+                    {/* EMERGENCY LOGOUT */}
+                    <button 
+                       onClick={onLogout}
+                       className="w-12 h-12 rounded-2xl bg-foreground/[0.03] border border-foreground/[0.05] flex items-center justify-center text-foreground/40 hover:text-red-500 hover:bg-red-500/10 hover:border-red-500/30 hover:shadow-[0_0_20px_rgba(239,68,68,0.3)] transition-all group pointer-events-auto"
+                       title="Emergency Termination"
+                    >
+                       <LogOut size={20} className="group-hover:rotate-12 transition-transform" />
+                    </button>
+
+                    <div 
+                       onClick={() => onNavChange?.('home')}
+                       className="flex items-center gap-4 bg-foreground/[0.03] border border-foreground/[0.05] rounded-full p-1.5 pl-4 pr-4 hover:bg-foreground/[0.06] transition-all cursor-pointer group active:scale-95"
+                    >
+                       <span className="text-[11px] font-black uppercase tracking-[2px] opacity-40 group-hover:opacity-100 transition-opacity">
+                          {user.username || 'Syncing...'}
+                       </span>
+                       <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[12px] font-black border-2 border-background">
+                          {(user.username || 'V')[0].toUpperCase()}
+                       </div>
                     </div>
                  </motion.div>
                ) : (
