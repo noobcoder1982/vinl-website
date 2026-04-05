@@ -9,6 +9,15 @@ import { motion, AnimatePresence } from "motion/react";
 import { SongCard } from "./SongCard";
 
 export function HomeView({ songs = [], currentSong, isPlaying, onSongSelect, user, onLogout, onNavChange, themeColor = "#00ffcc" }) {
+  const [timeOfDay, setTimeOfDay] = useState("Night");
+  
+  useEffect(() => {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) setTimeOfDay("Morning");
+    else if (hour >= 12 && hour < 18) setTimeOfDay("Day");
+    else setTimeOfDay("Night");
+  }, []);
+
   const forYou = useMemo(() => ({
     big: songs[0] || null,
     small: songs.slice(1, 3)
