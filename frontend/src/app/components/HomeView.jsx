@@ -72,7 +72,7 @@ export function HomeView({ songs = [], currentSong, isPlaying, onSongSelect, use
                    initial={{ opacity: 0, x: 10 }}
                    animate={{ opacity: 1, x: 0 }}
                    exit={{ opacity: 0, x: -10 }}
-                   onClick={() => onNavChange?.('auth')}
+                   onClick={() => onNavChange?.('profile')}
                    className="h-11 px-8 rounded-full bg-foreground text-background text-[11px] font-black uppercase tracking-[3px] hover:scale-105 active:scale-95 transition-all shadow-xl flex items-center gap-3"
                  >
                     <LogIn size={14} /> Login / Get Started
