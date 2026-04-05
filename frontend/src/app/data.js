@@ -5,7 +5,7 @@ export const FALLBACK_SONGS = [
     id: 1,
     title: "Boom",
     artist: "Suno AI",
-    duration: 150,
+    duration: 165,
     imageUrl: "public/covers/cover_4.jpg",
     genre: "Trap",
     audioUrl: "https://res.cloudinary.com/drahjrfdf/video/upload/f_auto,q_auto/v1774630530/BOOM_u4p8sd.mp3"

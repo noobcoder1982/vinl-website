@@ -821,6 +821,7 @@ export default function App() {
                 onToggleLike={() => toggleLike(currentSong?.id)}
                 isShuffle={isShuffle}
                 repeatMode={repeatMode}
+                songs={songs}
                 onToggleShuffle={() => setIsShuffle(!isShuffle)}
                 onToggleRepeat={() => setRepeatMode(prev => prev === "none" ? "all" : prev === "all" ? "one" : "none")}
               />
