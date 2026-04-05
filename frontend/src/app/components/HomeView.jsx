@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { 
   Play, Pause, Heart, Sparkles, Clock, Zap, Radio, 
   TrendingUp, Activity, Moon, Sun, Coffee, Flame, Headphones,
@@ -10,6 +10,7 @@ import { SongCard } from "./SongCard";
 
 export function HomeView({ songs = [], currentSong, isPlaying, onSongSelect, user, onLogout, onNavChange, themeColor = "#00ffcc" }) {
   const [timeOfDay, setTimeOfDay] = useState("Night");
+  const containerRef = useRef(null);
   
   useEffect(() => {
     const hour = new Date().getHours();
@@ -35,7 +36,10 @@ export function HomeView({ songs = [], currentSong, isPlaying, onSongSelect, use
   ];
 
   return (
-    <div className="flex-1 h-full bg-background text-foreground font-['Outfit'] overflow-y-auto no-scrollbar scroll-smooth relative">
+    <div 
+      ref={containerRef}
+      className="flex-1 h-full bg-background text-foreground font-['Outfit'] overflow-y-auto no-scrollbar scroll-smooth relative"
+    >
       
       {/* ── SUPREME TOP CLUSTER ── */}
       <header className="flex items-center justify-between sticky top-0 z-[100] px-10 py-6 bg-background/80 backdrop-blur-xl border-b border-foreground/[0.03]">
@@ -66,7 +70,10 @@ export function HomeView({ songs = [], currentSong, isPlaying, onSongSelect, use
                     </button>
 
                     <div 
-                       onClick={() => onNavChange?.('home')}
+                       onClick={() => {
+                          onNavChange?.('home');
+                          containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+                       }}
                        className="flex items-center gap-4 bg-foreground/[0.03] border border-foreground/[0.05] rounded-full p-1.5 pl-4 pr-4 hover:bg-foreground/[0.06] transition-all cursor-pointer group active:scale-95"
                     >
                        <span className="text-[11px] font-black uppercase tracking-[2px] opacity-40 group-hover:opacity-100 transition-opacity">
