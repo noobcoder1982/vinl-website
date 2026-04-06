@@ -82,7 +82,6 @@ export function HomeView({ songs = [], currentSong, isPlaying, onSongSelect, use
              </section>
 
              <div className="flex flex-col gap-24">
-                {/* ── 1. "FOR YOU" SMART SECTION ── */}
                 <section>
                    <div className="flex items-center justify-between mb-10 px-2">
                       <div className="flex items-center gap-4">
@@ -136,7 +135,6 @@ export function HomeView({ songs = [], currentSong, isPlaying, onSongSelect, use
                    </div>
                 </section>
 
-                {/* ── 4. "DROP IN" SECTION ── */}
                 <section className="relative px-20 py-24 rounded-[64px] overflow-hidden border border-primary/20 group text-center bg-card shadow-2xl">
                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,_rgba(var(--primary-rgb),0.1)_0%,_transparent_60%)]" />
                    <div className="relative z-10">
@@ -151,7 +149,6 @@ export function HomeView({ songs = [], currentSong, isPlaying, onSongSelect, use
                    </div>
                 </section>
 
-                {/* ── 2. CONTINUE LISTENING ── */}
                 <section>
                    <div className="flex items-center justify-between mb-10 px-2">
                       <div className="flex items-center gap-4">
@@ -179,7 +176,6 @@ export function HomeView({ songs = [], currentSong, isPlaying, onSongSelect, use
                    </div>
                 </section>
 
-                {/* ── 6. TRENDING NOW ── */}
                 <section className="overflow-hidden">
                    <header className="flex items-center gap-6 mb-12">
                       <TrendingUp size={32} className="text-primary" />
@@ -204,7 +200,6 @@ export function HomeView({ songs = [], currentSong, isPlaying, onSongSelect, use
                    </div>
                 </section>
 
-                {/* ── 8. AI PICKS ── */}
                 <section>
                    <div className="flex items-center gap-6 mb-12">
                       <Zap size={28} className="text-primary fill-primary" />

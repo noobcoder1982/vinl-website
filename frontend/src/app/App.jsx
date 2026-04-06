@@ -13,6 +13,7 @@ import { ThemesView } from "./components/ThemesView";
 import { PLAYLISTS } from "./data";
 import { songService } from "./services/songService";
 import { authService } from "./services/authService";
+import { inviteService } from "./services/inviteService";
 import { AnimatePresence, motion } from "motion/react";
 import { Compass, Radio, Disc, Sparkles, LogOut, LogIn, Search } from "lucide-react";
 import { FastAverageColor } from "fast-average-color";
@@ -42,9 +43,7 @@ function GenericView({ title, icon: Icon }) {
   return (
     <div className="w-full h-full flex flex-col items-center justify-center m-[15px] ml-0 rounded-[16px] border border-white/10 p-[40px] relative overflow-hidden" style={{ background: "linear-gradient(212deg, #1f1f1f 0%, #151515 93%)" }}>
       <div className="absolute inset-0 opacity-5 pointer-events-none flex flex-wrap gap-[20px] p-[20px]">
-        {Array.from({ length: 24 }).map((_, i) => (
-          <div key={i} className="w-[100px] h-[100px] bg-white rounded-[12px]" />
-        ))}
+        {Array.from({ length: 24 }).map((_, i) => ( <div key={i} className="w-[100px] h-[100px] bg-white rounded-[12px]" /> ))}
       </div>
       {Icon && <Icon size={80} className="text-white opacity-20 mb-[24px]" />}
       <h1 className="text-white text-5xl font-bold tracking-tighter mb-[8px]">{title}</h1>
@@ -79,24 +78,25 @@ export default function App() {
   const [repeatMode, setRepeatMode] = useState("none"); // "none", "all", "one"
   const [activeTheme, setActiveTheme] = useState(getSavedTheme);
   const [accentColor, setAccentColor] = useState(getSavedAccent);
-  
   const [inboxCount, setInboxCount] = useState(0);
   const [hasNewPost, setHasNewPost] = useState(false);
-
   const portalVinylRef = useRef(null);
   const audioRef = useRef(null);
 
-  const handleAuthSuccess = (userData) => { 
-    setUser(userData); 
-    setView("home"); 
-    setActiveNav("home"); 
-  };
+  useEffect(() => {
+    if (!user) return;
+    const checkInvites = async () => {
+       const invites = await inviteService.getMyInvites();
+       if (invites.length > inboxCount) { setHasNewPost(true); setTimeout(() => setHasNewPost(false), 2000); }
+       setInboxCount(invites.length);
+    };
+    checkInvites();
+    const interval = setInterval(checkInvites, 10000);
+    return () => clearInterval(interval);
+  }, [user, inboxCount]);
 
-  const handleLogout = async () => { 
-    await authService.logout(); 
-    setUser(null); 
-    setActiveNav("home"); 
-  };
+  const handleAuthSuccess = (userData) => { setUser(userData); setView("home"); setActiveNav("home"); };
+  const handleLogout = async () => { await authService.logout(); setUser(null); setActiveNav("home"); };
 
   useEffect(() => {
     const loadSongs = async () => {
@@ -108,30 +108,18 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const root = document.body;
-    root.classList.remove('dark', 'eco', 'neon', 'white', 'brutalist', 'f4');
-    root.classList.add(activeTheme);
-    localStorage.setItem('vinyl-theme', activeTheme);
+    const root = document.body; root.classList.remove('dark', 'eco', 'neon', 'white', 'brutalist', 'f4');
+    root.classList.add(activeTheme); localStorage.setItem('vinyl-theme', activeTheme);
   }, [activeTheme]);
 
-  useEffect(() => {
-     document.documentElement.style.setProperty('--theme-accent', accentColor);
-     localStorage.setItem('vinyl-accent', accentColor);
-  }, [accentColor]);
+  useEffect(() => { document.documentElement.style.setProperty('--theme-accent', accentColor); localStorage.setItem('vinyl-accent', accentColor); }, [accentColor]);
 
   useEffect(() => {
     let interval;
     if (isPlaying && currentSong) {
       let showingSong = true;
-      interval = setInterval(() => {
-        document.title = showingSong 
-          ? `▶ ${currentSong.title} — Vinl.` 
-          : "Vinl. — Social Synergy";
-        showingSong = !showingSong;
-      }, 3000);
-    } else {
-      document.title = "Vinl. — Social Synergy";
-    }
+      interval = setInterval(() => { document.title = showingSong ? `▶ ${currentSong.title} — Vinl.` : "Vinl. — Social Synergy"; showingSong = !showingSong; }, 3000);
+    } else { document.title = "Vinl. — Social Synergy"; }
     return () => clearInterval(interval);
   }, [isPlaying, currentSong]);
 
@@ -139,26 +127,14 @@ export default function App() {
     const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
     const apiBase = import.meta.env.VITE_API_URL || (isLocalhost ? "http://localhost:5001" : "https://vinl-website.onrender.com");
     const socketBase = apiBase.replace(/\/api\/?$/, "");
-    const newSocket = io(socketBase);
-    setSocket(newSocket);
-
+    const newSocket = io(socketBase); setSocket(newSocket);
     newSocket.on('playback-synced', (data) => {
        setIsRemoteUpdate(true);
-       if (data.songId && (!currentSong || data.songId !== currentSong.id)) {
-          const song = songs.find(s => s.id === data.songId);
-          if (song) setCurrentSong(song);
-       }
+       if (data.songId && (!currentSong || data.songId !== currentSong.id)) { const song = songs.find(s => s.id === data.songId); if (song) setCurrentSong(song); }
        if (typeof data.isPlaying === 'boolean') setIsPlaying(data.isPlaying);
-       if (typeof data.currentTime === 'number' && audioRef.current) {
-          const drift = Math.abs(audioRef.current.currentTime - data.currentTime);
-          if (drift > 0.8) {
-             audioRef.current.currentTime = data.currentTime;
-             setCurrentTime(data.currentTime);
-          }
-       }
+       if (typeof data.currentTime === 'number' && audioRef.current) { const drift = Math.abs(audioRef.current.currentTime - data.currentTime); if (drift > 0.8) { audioRef.current.currentTime = data.currentTime; setCurrentTime(data.currentTime); } }
        setTimeout(() => setIsRemoteUpdate(false), 200);
     });
-
     newSocket.on('queue-synced', (newQueue) => { setBlendQueue(newQueue); });
     return () => newSocket.close();
   }, [songs, currentSong]);
@@ -166,21 +142,17 @@ export default function App() {
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 767px)");
     const update = (e) => setIsMobile(e.matches);
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
+    mq.addEventListener("change", update); return () => mq.removeEventListener("change", update);
   }, []);
 
-  const toggleLike = (songId) => {
-    setLikedSongs(prev => prev.includes(songId) ? prev.filter(id => id !== songId) : [...prev, songId]);
-  };
+  const toggleLike = (songId) => { setLikedSongs(prev => prev.includes(songId) ? prev.filter(id => id !== songId) : [...prev, songId]); };
 
   useEffect(() => {
     if (currentSong?.imageUrl) {
       const fac = new FastAverageColor();
       fac.getColorAsync(currentSong.imageUrl)
         .then(color => { 
-          setThemeColor(color.hex); 
-          setIsDark(color.isDark);
+          setThemeColor(color.hex); setIsDark(color.isDark);
           const root = document.documentElement;
           root.style.setProperty('--dynamic-bg', color.hex);
           root.style.setProperty('--dynamic-fg', color.isDark ? '#ffffff' : '#000000');
@@ -196,60 +168,32 @@ export default function App() {
   const handleNext = () => {
     if (!songs.length || !currentSong) return;
     let nextSong;
-    if (isShuffle) {
-      const otherSongs = songs.filter(s => s.id !== currentSong.id);
-      nextSong = otherSongs.length > 0 ? otherSongs[Math.floor(Math.random() * otherSongs.length)] : songs[0];
-    } else {
-      const idx = songs.findIndex((s) => s.id === currentSong.id);
-      nextSong = songs[(idx + 1) % songs.length];
-    }
-    setCurrentSong(nextSong);
-    setCurrentTime(0);
-    if (audioRef.current) audioRef.current.currentTime = 0;
+    if (isShuffle) { const otherSongs = songs.filter(s => s.id !== currentSong.id); nextSong = otherSongs.length > 0 ? otherSongs[Math.floor(Math.random() * otherSongs.length)] : songs[0]; }
+    else { const idx = songs.findIndex((s) => s.id === currentSong.id); nextSong = songs[(idx + 1) % songs.length]; }
+    setCurrentSong(nextSong); setCurrentTime(0); if (audioRef.current) audioRef.current.currentTime = 0;
   };
 
   const handlePrev = () => {
     if (!songs.length || !currentSong) return;
     let prevSong;
-    if (isShuffle) {
-      const otherSongs = songs.filter(s => s.id !== currentSong.id);
-      prevSong = otherSongs.length > 0 ? otherSongs[Math.floor(Math.random() * otherSongs.length)] : songs[0];
-    } else {
-      const idx = songs.findIndex((s) => s.id === currentSong.id);
-      prevSong = songs[(idx - 1 + songs.length) % songs.length];
-    }
-    setCurrentSong(prevSong);
-    setCurrentTime(0);
-    if (audioRef.current) audioRef.current.currentTime = 0;
+    if (isShuffle) { const otherSongs = songs.filter(s => s.id !== currentSong.id); prevSong = otherSongs.length > 0 ? otherSongs[Math.floor(Math.random() * otherSongs.length)] : songs[0]; }
+    else { const idx = songs.findIndex((s) => s.id === currentSong.id); prevSong = songs[(idx - 1 + songs.length) % songs.length]; }
+    setCurrentSong(prevSong); setCurrentTime(0); if (audioRef.current) audioRef.current.currentTime = 0;
   };
 
   const handleEnded = () => {
-    if (repeatMode === "one") {
-      if (audioRef.current) { audioRef.current.currentTime = 0; audioRef.current.play(); }
-    } else if (repeatMode === "all") {
-      handleNext();
-    } else {
-      const idx = songs.findIndex((s) => s.id === currentSong.id);
-      if (idx < songs.length - 1 || isShuffle) handleNext();
-      else setIsPlaying(false);
-    }
+    if (repeatMode === "one") { if (audioRef.current) { audioRef.current.currentTime = 0; audioRef.current.play(); } }
+    else if (repeatMode === "all") { handleNext(); }
+    else { const idx = songs.findIndex((s) => s.id === currentSong.id); if (idx < songs.length - 1 || isShuffle) handleNext(); else setIsPlaying(false); }
   };
 
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
+    const audio = audioRef.current; if (!audio) return;
     if (isPlaying) { 
         audio.play().catch(e => console.log('Playback error:', e)); 
-        if (currentSong && !isAnimating) {
-           songService.recordPlay(currentSong.id, user?._id || user?.id).then(res => {
-              if (res?.data?.isAutoFavorite) setLikedSongs(prev => prev.includes(currentSong.id) ? prev : [...prev, currentSong.id]);
-           });
-        }
+        if (currentSong && !isAnimating) { songService.recordPlay(currentSong.id, user?._id || user?.id).then(res => { if (res?.data?.isAutoFavorite) setLikedSongs(prev => prev.includes(currentSong.id) ? prev : [...prev, currentSong.id]); }); }
         if ('mediaSession' in navigator && currentSong) {
-          navigator.mediaSession.metadata = new MediaMetadata({
-            title: currentSong.title, artist: currentSong.artist, album: currentSong.album,
-            artwork: [{ src: currentSong.imageUrl, sizes: '512x512', type: 'image/jpeg' }]
-          });
+          navigator.mediaSession.metadata = new MediaMetadata({ title: currentSong.title, artist: currentSong.artist, album: currentSong.album, artwork: [{ src: currentSong.imageUrl, sizes: '512x512', type: 'image/jpeg' }] });
           navigator.mediaSession.setActionHandler('play', () => setIsPlaying(true));
           navigator.mediaSession.setActionHandler('pause', () => setIsPlaying(false));
           navigator.mediaSession.setActionHandler('previoustrack', handlePrev);
@@ -261,50 +205,19 @@ export default function App() {
   useEffect(() => {
     if (!socket || !activeRoom || !isPlaying || isRemoteUpdate) return;
     const interval = setInterval(() => {
-      if (audioRef.current) {
-        socket.emit('sync-playback', {
-          roomId: activeRoom, songId: currentSong?.id, isPlaying: true,
-          currentTime: audioRef.current.currentTime, senderId: user?._id || user?.id || socket.id
-        });
-      }
+      if (audioRef.current) { socket.emit('sync-playback', { roomId: activeRoom, songId: currentSong?.id, isPlaying: true, currentTime: audioRef.current.currentTime, senderId: user?._id || user?.id || socket.id }); }
     }, 3000);
     return () => clearInterval(interval);
   }, [socket, activeRoom, isPlaying, currentSong, isRemoteUpdate]);
 
-  const navigateTo = (nav) => {
-    setNavHistory(prev => [...prev, activeNav]);
-    setNavFuture([]);
-    setActiveNav(nav);
-    setView("home");
-    setSelectedAlbum(null);
-  };
-
-  const handleNavBack = () => {
-    if (!navHistory.length) return;
-    const prev = navHistory[navHistory.length - 1];
-    setNavFuture(f => [activeNav, ...f]);
-    setNavHistory(h => h.slice(0, -1));
-    setActiveNav(prev);
-    setView("home");
-    setSelectedAlbum(null);
-  };
-
-  const handleNavForward = () => {
-    if (!navFuture.length) return;
-    const next = navFuture[0];
-    setNavHistory(h => [...h, activeNav]);
-    setNavFuture(f => f.slice(1));
-    setActiveNav(next);
-    setView("home");
-    setSelectedAlbum(null);
-  };
-
-  const handleAlbumSelect = (album) => {
-    setSelectedAlbum(album);
-    setView("album-details");
-  };
-
+  const navigateTo = (nav) => { setNavHistory(prev => [...prev, activeNav]); setNavFuture([]); setActiveNav(nav); setView("home"); setSelectedAlbum(null); };
+  const handleNavBack = () => { if (!navHistory.length) return; const prev = navHistory[navHistory.length - 1]; setNavFuture(f => [activeNav, ...f]); setNavHistory(h => h.slice(0, -1)); setActiveNav(prev); setView("home"); setSelectedAlbum(null); };
+  const handleNavForward = () => { if (!navFuture.length) return; const next = navFuture[0]; setNavHistory(h => [...h, activeNav]); setNavFuture(f => f.slice(1)); setActiveNav(next); setView("home"); setSelectedAlbum(null); };
+  const handleAlbumSelect = (album) => { setSelectedAlbum(album); setView("album-details"); };
   const progress = (currentSong?.duration > 0) ? (currentTime / currentSong.duration) * 100 : 0;
+  const handleSongSelect = (song) => { setCurrentSong(song); setIsPlaying(true); setCurrentTime(0); if (audioRef.current) audioRef.current.currentTime = 0; };
+  const handleSeek = (time) => { setCurrentTime(time); if (audioRef.current) audioRef.current.currentTime = time; };
+  const handlePlaylistSelect = (id) => { setActivePlaylist((prev) => prev === id ? null : id); };
   const displayedSongs = activePlaylist ? songs.filter((s) => PLAYLISTS.find((p) => p.id === activePlaylist)?.songIds.includes(s.id)) : songs;
 
   const runVinylTransition = (targetView) => {
@@ -312,42 +225,23 @@ export default function App() {
     const sourceEl = document.getElementById(targetView === "fullscreen" ? "mini-vinyl-source" : "fullscreen-vinyl-target");
     const targetEl = document.getElementById(targetView === "fullscreen" ? "fullscreen-vinyl-target" : "mini-vinyl-source");
     if (!sourceEl || !targetEl || !portalVinylRef.current) { setView(targetView); return; }
-    const sourceRect = sourceEl.getBoundingClientRect();
-    const targetRect = targetEl.getBoundingClientRect();
-    setIsAnimating(true);
-    const deltaX = sourceRect.left - targetRect.left;
-    const deltaY = sourceRect.top - targetRect.top;
-    const deltaScale = sourceRect.width / targetRect.width;
+    const sourceRect = sourceEl.getBoundingClientRect(); const targetRect = targetEl.getBoundingClientRect();
+    setIsAnimating(true); const deltaX = sourceRect.left - targetRect.left; const deltaY = sourceRect.top - targetRect.top; const deltaScale = sourceRect.width / targetRect.width;
     set(portalVinylRef.current, { top: targetRect.top, left: targetRect.left, width: targetRect.width, height: targetRect.height, translateX: deltaX, translateY: deltaY, scale: deltaScale, rotate: 0, opacity: 1, borderRadius: '50%', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', willChange: 'transform, opacity, box-shadow' });
     animate(portalVinylRef.current, { translateX: 0, translateY: 0, scale: [deltaScale, Math.max(deltaScale, 1) * 1.6, 1], rotate: targetView === "fullscreen" ? [0, 540] : [0, -540], boxShadow: ["0 10px 30px rgba(0,0,0,0.5)", "0 120px 160px rgba(0,0,0,0.9)", "0 40px 80px rgba(0,0,0,0.7)"], ease: 'outExpo', duration: 1100, onBegin: () => { setTimeout(() => setView(targetView), 500); }, onComplete: () => { setIsAnimating(false); animate(portalVinylRef.current, { opacity: 0, duration: 250, ease: 'linear' }); } });
   };
-
-  const [playlists, setPlaylists] = useState(() => {
-    const saved = localStorage.getItem("customPlaylists");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [playlists, setPlaylists] = useState(() => { const saved = localStorage.getItem("customPlaylists"); return saved ? JSON.parse(saved) : []; });
   useEffect(() => { localStorage.setItem("customPlaylists", JSON.stringify(playlists)); }, [playlists]);
-
   const handleCreatePlaylist = (name) => { setPlaylists(prev => [...prev, { id: `playlist-${Date.now()}`, name, songs: [] }]); };
   const handleDeletePlaylist = (id) => { setPlaylists(prev => prev.filter(p => p.id !== id)); if (selectedAlbum?.id === id) { setSelectedAlbum(null); setView("albums"); } };
 
   return (
     <div className="w-screen overflow-hidden flex flex-col bg-background text-foreground transition-colors duration-500" style={{ height: "100dvh" }}>
       <AnimatePresence>
-        {activeTheme === 'eco' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.15 }} exit={{ opacity: 0 }} className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-            <video autoPlay muted loop playsInline className="w-full h-full object-cover scale-110 blur-sm" src="https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4" />
-          </motion.div>
-        )}
-        {activeTheme === 'neon' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.12 }} exit={{ opacity: 0 }} className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-            <video autoPlay muted loop playsInline className="w-full h-full object-cover scale-110 blur-[2px]" src="https://assets.mixkit.co/videos/preview/mixkit-neon-lighted-street-at-night-with-rain-4592-large.mp4" />
-          </motion.div>
-        )}
+        {activeTheme === 'eco' && ( <motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.15 }} exit={{ opacity: 0 }} className="fixed inset-0 z-0 pointer-events-none overflow-hidden"> <video autoPlay muted loop playsInline className="w-full h-full object-cover scale-110 blur-sm" src="https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4" /> </motion.div> )}
+        {activeTheme === 'neon' && ( <motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.12 }} exit={{ opacity: 0 }} className="fixed inset-0 z-0 pointer-events-none overflow-hidden"> <video autoPlay muted loop playsInline className="w-full h-full object-cover scale-110 blur-[2px]" src="https://assets.mixkit.co/videos/preview/mixkit-neon-lighted-street-at-night-with-rain-4592-large.mp4" /> </motion.div> )}
       </AnimatePresence>
-      
       <audio ref={audioRef} src={currentSong?.audioUrl} onTimeUpdate={() => audioRef.current && setCurrentTime(audioRef.current.currentTime)} onEnded={handleEnded} preload="auto" />
-
       <div ref={portalVinylRef} className="fixed z-[9999] pointer-events-none opacity-0 overflow-hidden" style={{ background: "repeating-radial-gradient(#1a1a1a 0px, #000 1px, #1a1a1a 4px)", borderRadius: '50%' }}>
          <div className="absolute inset-0 rounded-full opacity-30" style={{ background: "conic-gradient(from 0deg, transparent 0, #333 45deg, transparent 90deg, #333 135deg, transparent 180deg, #333 225deg, transparent 270deg, #333 315deg, transparent 360deg)" }} />
          <div className="absolute inset-[33%] rounded-full overflow-hidden border-2 border-black/50 shadow-inner">
@@ -356,10 +250,8 @@ export default function App() {
          </div>
          <div className="absolute w-[6%] aspect-square bg-[#ccc] rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] border border-black/40" />
       </div>
-
       <div className="hidden md:flex flex-1 min-h-0 relative">
         <Sidebar activeNav={activeNav} onNavChange={navigateTo} onBack={handleNavBack} onForward={handleNavForward} canGoBack={navHistory.length > 0} canGoForward={navFuture.length > 0} activePlaylist={activePlaylist} onPlaylistSelect={handlePlaylistSelect} song={currentSong} isPlaying={isPlaying} onTogglePlay={() => setIsPlaying((p) => !p)} onNext={handleNext} onPrev={handlePrev} progress={progress} currentTime={currentTime} onSeek={handleSeek} isFullScreen={view === "fullscreen"} onOpenFullscreen={() => runVinylTransition("fullscreen")} themeColor={themeColor} isDark={isDark} likedSongs={likedSongs} onToggleLike={toggleLike} user={user} onLogout={handleLogout} isShuffle={isShuffle} repeatMode={repeatMode} onToggleShuffle={() => setIsShuffle(!isShuffle)} onToggleRepeat={() => setRepeatMode(prev => prev === "none" ? "all" : prev === "all" ? "one" : "none")} volume={volume} onVolumeChange={setVolume} inboxCount={inboxCount} hasNewPost={hasNewPost} />
-        
         <div className="flex-1 relative m-[15px] ml-[15px] h-[calc(100%-30px)] bg-card border border-border rounded-[24px] overflow-hidden shadow-sm">
           <AnimatePresence mode="wait">
             {view !== "fullscreen" && (
@@ -402,7 +294,6 @@ export default function App() {
           </AnimatePresence>
         </div>
       </div>
-
       <div className="flex md:hidden fixed inset-0 flex-col overflow-hidden bg-background">
         <div className="flex-1 relative overflow-hidden min-h-0">
           <AnimatePresence mode="wait">
@@ -424,7 +315,6 @@ export default function App() {
         {activeTheme === "studio" ? <MobileStudioBar song={currentSong} isPlaying={isPlaying} onTogglePlay={() => setIsPlaying(p => !p)} onOpenFullscreen={() => runVinylTransition("fullscreen")} /> : activeTheme === "f4" ? <MobileReelBar song={currentSong} isPlaying={isPlaying} onTogglePlay={() => setIsPlaying(p => !p)} onOpenFullscreen={() => runVinylTransition("fullscreen")} /> : <MobilePlayerBar song={currentSong} isPlaying={isPlaying} onTogglePlay={() => setIsPlaying(p => !p)} onNext={handleNext} onPrev={handlePrev} progress={progress} onOpenFullscreen={() => runVinylTransition("fullscreen")} themeColor={themeColor} />}
         <MobileNav activeNav={activeNav} onNavChange={navigateTo} />
       </div>
-
       <AnimatePresence>
         {view === "fullscreen" && (
           isMobile ? (
