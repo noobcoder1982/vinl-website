@@ -2,6 +2,35 @@ import React, { useRef } from "react";
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 
 /**
+ * WordsBlurReveal: Reveals words with a blur + fade + slide effect.
+ */
+export function WordsBlurReveal({ text, className = "", delayOffset = 0 }) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const words = text.split(" ");
+  
+  return (
+    <motion.div ref={ref} className={`flex flex-wrap ${className}`}>
+      {words.map((word, i) => (
+        <motion.span
+          key={i}
+          initial={{ opacity: 0, filter: "blur(10px)", y: 10 }}
+          animate={isInView ? { opacity: 1, filter: "blur(0px)", y: 0 } : {}}
+          transition={{ 
+            duration: 1, 
+            delay: delayOffset + (i * 0.06), 
+            ease: [0.16, 1, 0.3, 1] 
+          }}
+          className="mr-[0.25em] inline-block"
+        >
+          {word}
+        </motion.span>
+      ))}
+    </motion.div>
+  );
+}
+
+/**
  * WordsPullUp: Splits text by spaces, each word slides up from y:20 to 0.
  */
 export function WordsPullUp({ text, className = "", showAsterisk = false }) {
@@ -13,7 +42,7 @@ export function WordsPullUp({ text, className = "", showAsterisk = false }) {
   return (
     <motion.div ref={ref} className={`flex flex-wrap ${className}`}>
       {words.map((word, i) => (
-        <span key={i} className="relative overflow-hidden mr-[0.2em] inline-flex py-2">
+        <span key={i} className="relative overflow-hidden mr-[0.25em] inline-flex py-2">
           <motion.span
             initial={{ y: "100%" }}
             animate={isInView ? { y: 0 } : { y: "100%" }}
@@ -46,11 +75,11 @@ export function WordsPullUpMultiStyle({ segments, className = "" }) {
   return (
     <div ref={ref} className={`inline-flex flex-wrap justify-center ${className}`}>
       {allWords.map((wordObj, i) => (
-        <span key={i} className="relative overflow-hidden mr-[0.2em] inline-flex py-2">
+        <span key={i} className="relative overflow-hidden mr-[0.25em] inline-flex py-2">
           <motion.span
-            initial={{ y: "100%" }}
-            animate={isInView ? { y: 0 } : { y: "100%" }}
-            transition={{ duration: 0.8, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+            initial={{ y: "100%", opacity: 0, filter: "blur(5px)" }}
+            animate={isInView ? { y: 0, opacity: 1, filter: "blur(0px)" } : {}}
+            transition={{ duration: 1, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
             className={`inline-block ${wordObj.className || ""}`}
           >
             {wordObj.text}

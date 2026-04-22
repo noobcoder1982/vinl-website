@@ -29,6 +29,7 @@ import { InboxView } from "./components/InboxView";
 import { LikedSongsView } from "./components/LikedSongsView";
 import { NotFoundView } from "./components/NotFoundView";
 import { LandingView } from "./components/LandingView";
+import { CustomCursor } from "./components/ui/CustomCursor";
 
 const getSavedTheme = () => {
   if (typeof window === 'undefined') return 'dark';
@@ -97,7 +98,7 @@ export default function App() {
   }, [user, inboxCount]);
 
   const handleAuthSuccess = (userData) => { setUser(userData); setView("home"); setActiveNav("home"); };
-  const handleLogout = async () => { await authService.logout(); setUser(null); setActiveNav("home"); };
+  const handleLogout = async () => { await authService.logout(); setUser(null); setView("landing"); setActiveNav("home"); };
 
   useEffect(() => {
     const loadSongs = async () => {
@@ -237,7 +238,8 @@ export default function App() {
   const handleDeletePlaylist = (id) => { setPlaylists(prev => prev.filter(p => p.id !== id)); if (selectedAlbum?.id === id) { setSelectedAlbum(null); setView("albums"); } };
 
   return (
-    <div className="w-screen overflow-hidden flex flex-col bg-background text-foreground transition-colors duration-500" style={{ height: "100dvh" }}>
+    <div className="w-screen overflow-hidden flex flex-col bg-background text-foreground transition-colors duration-500 cursor-none" style={{ height: "100dvh" }}>
+      <CustomCursor />
       <AnimatePresence>
         {view === "landing" && (
           <motion.div key="landing-overlay" initial={{ opacity: 1 }} exit={{ opacity: 0, scale: 1.1, filter: "blur(20px)" }} transition={{ duration: 0.8, ease: "circIn" }} className="fixed inset-0 z-[2000]">
@@ -275,7 +277,7 @@ export default function App() {
                          {user && (
                            <motion.div key="user-cluster" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="flex items-center gap-4">
                                <button onClick={handleLogout} className="w-11 h-11 rounded-2xl bg-foreground/[0.03] border border-foreground/[0.05] flex items-center justify-center text-foreground/40 hover:text-red-500 hover:bg-red-500/10 hover:border-red-500/30 hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] transition-all group" title="Logout"><LogOut size={18} /></button>
-                               <div onClick={() => navigateTo('home')} className="flex items-center gap-4 bg-foreground/[0.03] border border-foreground/[0.05] rounded-full p-1.5 pl-4 pr-4 hover:bg-foreground/[0.06] transition-all cursor-pointer group active:scale-95">
+                               <div onClick={() => navigateTo('profile')} className="flex items-center gap-4 bg-foreground/[0.03] border border-foreground/[0.05] rounded-full p-1.5 pl-4 pr-4 hover:bg-foreground/[0.06] transition-all cursor-pointer group active:scale-95">
                                   <span className="text-[11px] font-black uppercase tracking-[2px] opacity-40 group-hover:opacity-100 transition-opacity">{user.username || 'Testing_User'}</span>
                                   <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[12px] font-black border-2 border-background">{(user.username || 'V')[0].toUpperCase()}</div>
                                 </div>
