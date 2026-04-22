@@ -28,6 +28,7 @@ import { BlendView } from "./components/BlendView";
 import { InboxView } from "./components/InboxView";
 import { LikedSongsView } from "./components/LikedSongsView";
 import { NotFoundView } from "./components/NotFoundView";
+import { LandingView } from "./components/LandingView";
 
 const getSavedTheme = () => {
   if (typeof window === 'undefined') return 'dark';
@@ -53,7 +54,7 @@ function GenericView({ title, icon: Icon }) {
 }
 
 export default function App() {
-  const [view, setView] = useState("home");
+  const [view, setView] = useState("landing");
   const [activeNav, setActiveNav] = useState("home");
   const [activePlaylist, setActivePlaylist] = useState(null);
   const [songs, setSongs] = useState([]);
@@ -238,6 +239,14 @@ export default function App() {
   return (
     <div className="w-screen overflow-hidden flex flex-col bg-background text-foreground transition-colors duration-500" style={{ height: "100dvh" }}>
       <AnimatePresence>
+        {view === "landing" && (
+          <motion.div key="landing-overlay" initial={{ opacity: 1 }} exit={{ opacity: 0, scale: 1.1, filter: "blur(20px)" }} transition={{ duration: 0.8, ease: "circIn" }} className="fixed inset-0 z-[2000]">
+            <LandingView onAuthSuccess={handleAuthSuccess} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
         {activeTheme === 'eco' && ( <motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.15 }} exit={{ opacity: 0 }} className="fixed inset-0 z-0 pointer-events-none overflow-hidden"> <video autoPlay muted loop playsInline className="w-full h-full object-cover scale-110 blur-sm" src="https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4" /> </motion.div> )}
         {activeTheme === 'neon' && ( <motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.12 }} exit={{ opacity: 0 }} className="fixed inset-0 z-0 pointer-events-none overflow-hidden"> <video autoPlay muted loop playsInline className="w-full h-full object-cover scale-110 blur-[2px]" src="https://assets.mixkit.co/videos/preview/mixkit-neon-lighted-street-at-night-with-rain-4592-large.mp4" /> </motion.div> )}
       </AnimatePresence>
@@ -263,16 +272,14 @@ export default function App() {
                    </div>
                    <div className="flex items-center gap-6">
                       <AnimatePresence mode="wait">
-                         {user ? (
+                         {user && (
                            <motion.div key="user-cluster" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="flex items-center gap-4">
                                <button onClick={handleLogout} className="w-11 h-11 rounded-2xl bg-foreground/[0.03] border border-foreground/[0.05] flex items-center justify-center text-foreground/40 hover:text-red-500 hover:bg-red-500/10 hover:border-red-500/30 hover:shadow-[0_0_20px_rgba(239,68,68,0.2)] transition-all group" title="Logout"><LogOut size={18} /></button>
                                <div onClick={() => navigateTo('home')} className="flex items-center gap-4 bg-foreground/[0.03] border border-foreground/[0.05] rounded-full p-1.5 pl-4 pr-4 hover:bg-foreground/[0.06] transition-all cursor-pointer group active:scale-95">
                                   <span className="text-[11px] font-black uppercase tracking-[2px] opacity-40 group-hover:opacity-100 transition-opacity">{user.username || 'Testing_User'}</span>
                                   <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-[12px] font-black border-2 border-background">{(user.username || 'V')[0].toUpperCase()}</div>
-                               </div>
+                                </div>
                            </motion.div>
-                         ) : (
-                           <motion.button key="login-btn" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} onClick={() => navigateTo('profile')} className="h-11 px-8 rounded-full bg-foreground text-background text-[11px] font-black uppercase tracking-[3px] hover:scale-105 transition-all shadow-xl flex items-center gap-3"><LogIn size={15} /> Login / Get Started</motion.button>
                          )}
                       </AnimatePresence>
                    </div>
