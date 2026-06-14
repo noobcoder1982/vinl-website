@@ -3,6 +3,7 @@ import { motion, useMotionValue, useSpring } from 'framer-motion';
 
 export const CustomCursor = () => {
   const [isHovered, setIsHovered] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   
   const cursorX = useMotionValue(-100);
   const cursorY = useMotionValue(-100);
@@ -12,6 +13,19 @@ export const CustomCursor = () => {
   const smoothY = useSpring(cursorY, springConfig);
 
   useEffect(() => {
+    const checkVisibility = () => {
+      const isTouchDevice = 
+        window.matchMedia("(pointer: coarse)").matches || 
+        ('ontouchstart' in window) || 
+        navigator.maxTouchPoints > 0;
+      const isMobileViewport = window.innerWidth < 768;
+      
+      setIsVisible(!isTouchDevice && !isMobileViewport);
+    };
+
+    checkVisibility();
+    window.addEventListener('resize', checkVisibility);
+
     const moveCursor = (e) => {
       cursorX.set(e.clientX);
       cursorY.set(e.clientY);
@@ -33,10 +47,13 @@ export const CustomCursor = () => {
     window.addEventListener('mouseover', handleHover);
 
     return () => {
+      window.removeEventListener('resize', checkVisibility);
       window.removeEventListener('mousemove', moveCursor);
       window.removeEventListener('mouseover', handleHover);
     };
   }, []);
+
+  if (!isVisible) return null;
 
   return (
     <motion.div

@@ -4,29 +4,14 @@ import { ChevronDown, Heart, MessageSquare, Headphones, Play, Pause } from "luci
 
 /* ── REEL COMPONENT ── */
 function Reel({ isPlaying, progress, reverse = false }) {
-  const rotation = useRef(0);
-  const rafRef = useRef(null);
-  const [angle, setAngle] = useState(0);
-
-  useEffect(() => {
-    if (!isPlaying) {
-      cancelAnimationFrame(rafRef.current);
-      return;
-    }
-    const spin = () => {
-      rotation.current += reverse ? -2 : 2;
-      setAngle(rotation.current);
-      rafRef.current = requestAnimationFrame(spin);
-    };
-    rafRef.current = requestAnimationFrame(spin);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [isPlaying, reverse]);
-
   return (
     <div className="relative w-[140px] h-[140px] rounded-full bg-[#e8e3d9] shadow-inner flex items-center justify-center overflow-hidden border border-black/5">
-      <motion.div 
-        className="absolute inset-[15%] rounded-full bg-[#0a0a0a]"
-        style={{ rotate: angle }}
+      <div 
+        className="absolute inset-[15%] rounded-full bg-[#0a0a0a] will-change-transform transform-gpu"
+        style={isPlaying ? {
+          animation: `spin ${reverse ? '4s linear infinite reverse' : '4s linear infinite'}`,
+          willChange: "transform"
+        } : {}}
       >
         {/* Reel Cutouts */}
         {[0, 120, 240].map((deg) => (
@@ -40,7 +25,7 @@ function Reel({ isPlaying, progress, reverse = false }) {
         <div className="absolute inset-[35%] bg-[#e8e3d9] rounded-full shadow-lg border-2 border-[#0a0a0a] flex items-center justify-center">
             <div className="w-[40%] h-[40%] bg-[#0a0a0a] rounded-full" />
         </div>
-      </motion.div>
+      </div>
       {/* Tape Fill Ring (Static) */}
       <div 
          className="absolute inset-0 rounded-full border-[15px] border-[#0a0a0a] opacity-80" 
@@ -52,33 +37,18 @@ function Reel({ isPlaying, progress, reverse = false }) {
 
 /* ── DIAL COMPONENT ── */
 function Dial({ isPlaying, onClick }) {
-  const rotation = useRef(0);
-  const rafRef = useRef(null);
-  const [angle, setAngle] = useState(0);
-
-  useEffect(() => {
-    if (!isPlaying) {
-      cancelAnimationFrame(rafRef.current);
-      return;
-    }
-    const spin = () => {
-      rotation.current += 1;
-      setAngle(rotation.current);
-      rafRef.current = requestAnimationFrame(spin);
-    };
-    rafRef.current = requestAnimationFrame(spin);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [isPlaying]);
-
   return (
     <div onClick={onClick} className="w-[160px] h-[160px] bg-[#c3bcaf] rounded-[30px] flex items-center justify-center shadow-inner cursor-pointer active:scale-95 transition-transform">
-      <motion.div 
-         className="w-[140px] h-[140px] bg-[#0a0a0a] rounded-full shadow-2xl relative flex items-center justify-center"
-         style={{ rotate: angle }}
+      <div 
+         className="w-[140px] h-[140px] bg-[#0a0a0a] rounded-full shadow-2xl relative flex items-center justify-center will-change-transform transform-gpu"
+         style={isPlaying ? {
+           animation: "spin 6s linear infinite",
+           willChange: "transform"
+         } : {}}
       >
          <div className="absolute top-4 w-1.5 h-6 bg-white/80 rounded-full" />
          <div className="w-[40px] h-[40px] rounded-full bg-[#d6ccbd] border-4 border-black box-content" />
-      </motion.div>
+      </div>
     </div>
   );
 }
@@ -168,28 +138,31 @@ export function MobileReelPlayer({
 
 /* ── F4 MOBILE PLAYER BAR ── */
 export function MobileReelBar({ song, isPlaying, onTogglePlay, onOpenFullscreen }) {
+  if (!song) return null;
   return (
-    <div 
+    <motion.div 
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
       onClick={onOpenFullscreen}
-      className="h-[80px] w-full bg-[#d6ccbd] border-t-4 border-[#0a0a0a] flex items-center px-4 relative cursor-pointer"
+      className="fixed bottom-[92px] left-1/2 -translate-x-1/2 z-[1000] w-[90%] max-w-[360px] h-20 rounded-[32px] mobile-player-capsule text-[#0a0a0a] p-2.5 pl-14 pr-5 active:scale-[0.98] flex items-center justify-between cursor-pointer border overflow-hidden transition-all"
     >
-       <div className="absolute left-0 top-0 bottom-0 w-12 bg-[#0a0a0a] flex flex-col justify-between py-2 items-center">
-          <div className="w-1 h-3 bg-white/20 rounded-full" />
-          <div className="w-1 h-3 bg-white/20 rounded-full" />
-          <div className="w-1 h-3 bg-white/20 rounded-full" />
+       <div className="absolute left-0 top-0 bottom-0 w-10 bg-[#0a0a0a] flex flex-col justify-between py-2.5 items-center">
+          <div className="w-1 h-2 bg-[#d6ccbd]/40 rounded-full" />
+          <div className="w-1 h-2 bg-[#d6ccbd]/40 rounded-full" />
+          <div className="w-1 h-2 bg-[#d6ccbd]/40 rounded-full" />
        </div>
        
-       <div className="ml-16 flex-1 min-w-0 pr-4">
-          <h3 className="text-[#0a0a0a] font-black text-lg leading-tight truncate uppercase tracking-tighter">{song?.title || "F4 ANALOG"}</h3>
-          <p className="text-[#0a0a0a]/50 font-bold text-[10px] uppercase tracking-widest">Deck 1 Active</p>
+       <div className="flex-1 min-w-0 pr-4">
+          <h3 className="font-black text-[15px] leading-tight truncate uppercase tracking-tighter">{song.title}</h3>
+          <p className="opacity-50 font-bold text-[9px] uppercase tracking-widest">Deck 1 Active</p>
        </div>
 
        <button 
          onClick={(e) => { e.stopPropagation(); onTogglePlay(); }}
-         className="w-12 h-12 rounded-full border-4 border-[#0a0a0a] flex items-center justify-center bg-transparent active:scale-90"
+         className="w-10 h-10 rounded-full border-2 border-[#0a0a0a] flex items-center justify-center bg-transparent active:scale-90 flex-none"
        >
-          {isPlaying ? <Pause size={20} fill="#0a0a0a" color="#0a0a0a" /> : <Play size={20} fill="#0a0a0a" color="#0a0a0a" className="ml-1" />}
+          {isPlaying ? <Pause size={16} fill="#0a0a0a" color="#0a0a0a" /> : <Play size={16} fill="#0a0a0a" color="#0a0a0a" className="ml-0.5" />}
        </button>
-    </div>
+    </motion.div>
   );
 }

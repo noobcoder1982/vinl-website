@@ -20,7 +20,7 @@ import { FastAverageColor } from "fast-average-color";
 import { animate, set } from "animejs";
 import { io } from "socket.io-client";
 import { MobilePlayerBar, MobileNav } from "./components/MobileUI";
-import { MobileCassettePlayer } from "./components/MobileCassettePlayer";
+import { MobileFullscreenPlayer } from "./components/MobileFullscreenPlayer";
 import { MobileReelPlayer, MobileReelBar } from "./components/MobileReelPlayer";
 import { MobileHomeView } from "./components/MobileHomeView";
 import { MobileStudioSync, MobileStudioBar } from "./components/MobileStudioSync";
@@ -78,6 +78,19 @@ export default function App() {
   const [isMobile, setIsMobile] = useState(() => window.matchMedia("(max-width: 767px)").matches);
   const [isShuffle, setIsShuffle] = useState(false);
   const [repeatMode, setRepeatMode] = useState("none"); // "none", "all", "one"
+  const [activeVibe, setActiveVibe] = useState(null);
+
+  const vibes = [
+    { id: 'energy', genres: ['Trap', 'Electronic'] },
+    { id: 'flow', genres: ['Chill', 'Relax'] },
+    { id: 'focus', genres: ['Ambient', 'Chill'] },
+    { id: 'midnight', genres: ['Relax', 'Ambient'] },
+    { id: 'infinity', genres: ['Trap', 'Chill', 'Electronic', 'Ambient', 'Relax'] }
+  ];
+  const displaySongsList = activeVibe 
+    ? songs.filter(s => vibes.find(v => v.id === activeVibe)?.genres.includes(s.genre))
+    : songs;
+
   const [activeTheme, setActiveTheme] = useState(getSavedTheme);
   const [accentColor, setAccentColor] = useState(getSavedAccent);
   const [inboxCount, setInboxCount] = useState(0);
@@ -168,25 +181,28 @@ export default function App() {
   }, [currentSong]);
 
   const handleNext = () => {
-    if (!songs.length || !currentSong) return;
+    const queue = displaySongsList.length > 0 ? displaySongsList : songs;
+    if (!queue.length || !currentSong) return;
     let nextSong;
-    if (isShuffle) { const otherSongs = songs.filter(s => s.id !== currentSong.id); nextSong = otherSongs.length > 0 ? otherSongs[Math.floor(Math.random() * otherSongs.length)] : songs[0]; }
-    else { const idx = songs.findIndex((s) => s.id === currentSong.id); nextSong = songs[(idx + 1) % songs.length]; }
+    if (isShuffle) { const otherSongs = queue.filter(s => s.id !== currentSong.id); nextSong = otherSongs.length > 0 ? otherSongs[Math.floor(Math.random() * otherSongs.length)] : queue[0]; }
+    else { const idx = queue.findIndex((s) => s.id === currentSong.id); nextSong = queue[(idx + 1) % queue.length]; }
     setCurrentSong(nextSong); setCurrentTime(0); if (audioRef.current) audioRef.current.currentTime = 0;
   };
 
   const handlePrev = () => {
-    if (!songs.length || !currentSong) return;
+    const queue = displaySongsList.length > 0 ? displaySongsList : songs;
+    if (!queue.length || !currentSong) return;
     let prevSong;
-    if (isShuffle) { const otherSongs = songs.filter(s => s.id !== currentSong.id); prevSong = otherSongs.length > 0 ? otherSongs[Math.floor(Math.random() * otherSongs.length)] : songs[0]; }
-    else { const idx = songs.findIndex((s) => s.id === currentSong.id); prevSong = songs[(idx - 1 + songs.length) % songs.length]; }
+    if (isShuffle) { const otherSongs = queue.filter(s => s.id !== currentSong.id); prevSong = otherSongs.length > 0 ? otherSongs[Math.floor(Math.random() * otherSongs.length)] : queue[0]; }
+    else { const idx = queue.findIndex((s) => s.id === currentSong.id); prevSong = queue[(idx - 1 + queue.length) % queue.length]; }
     setCurrentSong(prevSong); setCurrentTime(0); if (audioRef.current) audioRef.current.currentTime = 0;
   };
 
   const handleEnded = () => {
+    const queue = displaySongsList.length > 0 ? displaySongsList : songs;
     if (repeatMode === "one") { if (audioRef.current) { audioRef.current.currentTime = 0; audioRef.current.play(); } }
     else if (repeatMode === "all") { handleNext(); }
-    else { const idx = songs.findIndex((s) => s.id === currentSong.id); if (idx < songs.length - 1 || isShuffle) handleNext(); else setIsPlaying(false); }
+    else { const idx = queue.findIndex((s) => s.id === currentSong.id); if (idx < queue.length - 1 || isShuffle) handleNext(); else setIsPlaying(false); }
   };
 
   useEffect(() => {
@@ -250,7 +266,18 @@ export default function App() {
 
       <AnimatePresence>
         {activeTheme === 'eco' && ( <motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.15 }} exit={{ opacity: 0 }} className="fixed inset-0 z-0 pointer-events-none overflow-hidden"> <video autoPlay muted loop playsInline className="w-full h-full object-cover scale-110 blur-sm" src="https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4" /> </motion.div> )}
-        {activeTheme === 'neon' && ( <motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.12 }} exit={{ opacity: 0 }} className="fixed inset-0 z-0 pointer-events-none overflow-hidden"> <video autoPlay muted loop playsInline className="w-full h-full object-cover scale-110 blur-[2px]" src="https://assets.mixkit.co/videos/preview/mixkit-neon-lighted-street-at-night-with-rain-4592-large.mp4" /> </motion.div> )}
+        {activeTheme === 'neon' && (
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }} 
+            className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-[#030308]"
+          >
+            <div className="absolute top-[-20%] left-[-20%] w-[60%] aspect-square rounded-full bg-[#ff0055]/10 blur-[130px] animate-float-glow" style={{ animationDuration: '18s' }} />
+            <div className="absolute bottom-[-20%] right-[-20%] w-[60%] aspect-square rounded-full bg-[#00f0ff]/10 blur-[130px] animate-float-glow" style={{ animationDuration: '24s' }} />
+            <div className="absolute inset-0 bg-cyber-grid opacity-[0.06]" />
+          </motion.div>
+        )}
       </AnimatePresence>
       <audio ref={audioRef} src={currentSong?.audioUrl} onTimeUpdate={() => audioRef.current && setCurrentTime(audioRef.current.currentTime)} onEnded={handleEnded} preload="auto" />
       <div ref={portalVinylRef} className="fixed z-[9999] pointer-events-none opacity-0 overflow-hidden" style={{ background: "repeating-radial-gradient(#1a1a1a 0px, #000 1px, #1a1a1a 4px)", borderRadius: '50%' }}>
@@ -295,7 +322,7 @@ export default function App() {
                   {activeNav === "inbox" && <InboxView onJoinRoom={(code) => { setActiveRoom(code); setActiveNav("blend"); }} onBack={() => setActiveNav("home")} />}
                   {activeNav === "themes" && <ThemesView currentTheme={activeTheme} onThemeChange={setActiveTheme} accentColor={accentColor} onAccentChange={setAccentColor} />}
                   {activeNav === "liked" && <LikedSongsView songs={songs} likedSongs={likedSongs} onSongSelect={handleSongSelect} currentSong={currentSong} isPlaying={isPlaying} onBack={() => setActiveNav("home")} />}
-                  {activeNav === "profile" && (user ? <ProfileView user={user} onUpdate={setUser} onLogout={handleLogout} /> : <AuthView onAuthSuccess={handleAuthSuccess} onBack={() => setActiveNav("home")} />)}
+                  {activeNav === "profile" && (user ? <ProfileView user={user} onUpdate={setUser} onLogout={handleLogout} onNavChange={navigateTo} likedCount={likedSongs.length} playlistsCount={playlists.length} /> : <AuthView onAuthSuccess={handleAuthSuccess} onBack={() => setActiveNav("home")} />)}
                   {!["home", "discover", "radio", "albums", "blend", "liked", "profile", "themes", "inbox"].includes(activeNav) && <NotFoundView onBack={handleNavBack} onHome={() => navigateTo("home")} />}
                 </div>
               </motion.div>
@@ -308,26 +335,26 @@ export default function App() {
           <AnimatePresence mode="wait">
             {view !== "fullscreen" && (
               <motion.div key={activeNav} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }} className="absolute inset-0 flex">
-                {activeNav === "home" && <MobileHomeView songs={songs} currentSong={currentSong} isPlaying={isPlaying} onSongSelect={handleSongSelect} onOpenFullscreen={() => runVinylTransition("fullscreen")} user={user} onProfileSelect={() => setActiveNav("profile")} />}
+                {activeNav === "home" && <MobileHomeView songs={songs} currentSong={currentSong} isPlaying={isPlaying} onSongSelect={handleSongSelect} onOpenFullscreen={() => runVinylTransition("fullscreen")} user={user} onProfileSelect={() => setActiveNav("profile")} activeVibe={activeVibe} onVibeChange={setActiveVibe} />}
                 {activeNav === "discover" && <DiscoverView onSongSelect={handleSongSelect} currentSong={currentSong} isPlaying={isPlaying} themeColor={themeColor} />}
                 {activeNav === "radio" && <RadioView onBack={() => navigateTo("home")} />}
                 {activeNav === "albums" && (selectedAlbum ? <AlbumDetailsView album={selectedAlbum} songs={songs} currentSong={currentSong} isPlaying={isPlaying} onSongSelect={handleSongSelect} onBack={() => { setSelectedAlbum(null); }} themeColor={themeColor} /> : <AlbumsView songs={displayedSongs} likedSongs={likedSongs} currentSong={currentSong} isPlaying={isPlaying} onSongSelect={handleSongSelect} onAlbumSelect={handleAlbumSelect} />)}
                 {activeNav === "blend" && <BlendView user={user} songs={songs} onSongSelect={handleSongSelect} />}
                 {activeNav === "themes" && <ThemesView currentTheme={activeTheme} onThemeChange={setActiveTheme} accentColor={accentColor} onAccentChange={setAccentColor} />}
                 {activeNav === "liked" && <LikedSongsView songs={songs} likedSongs={likedSongs} onSongSelect={handleSongSelect} currentSong={currentSong} isPlaying={isPlaying} onBack={() => setActiveNav("home")} />}
-                {activeNav === "profile" && (user ? <ProfileView user={user} onUpdate={setUser} onLogout={handleLogout} /> : <AuthView onAuthSuccess={handleAuthSuccess} onBack={() => navigateTo("home")} />)}
+                {activeNav === "profile" && (user ? <ProfileView user={user} onUpdate={setUser} onLogout={handleLogout} onNavChange={navigateTo} likedCount={likedSongs.length} playlistsCount={playlists.length} /> : <AuthView onAuthSuccess={handleAuthSuccess} onBack={() => navigateTo("home")} />)}
                 {!["home", "discover", "radio", "albums", "blend", "liked", "profile", "themes"].includes(activeNav) && <NotFoundView onBack={handleNavBack} onHome={() => navigateTo("home")} />}
               </motion.div>
             )}
           </AnimatePresence>
         </div>
-        {activeTheme === "studio" ? <MobileStudioBar song={currentSong} isPlaying={isPlaying} onTogglePlay={() => setIsPlaying(p => !p)} onOpenFullscreen={() => runVinylTransition("fullscreen")} /> : activeTheme === "f4" ? <MobileReelBar song={currentSong} isPlaying={isPlaying} onTogglePlay={() => setIsPlaying(p => !p)} onOpenFullscreen={() => runVinylTransition("fullscreen")} /> : <MobilePlayerBar song={currentSong} isPlaying={isPlaying} onTogglePlay={() => setIsPlaying(p => !p)} onNext={handleNext} onPrev={handlePrev} progress={progress} onOpenFullscreen={() => runVinylTransition("fullscreen")} themeColor={themeColor} />}
-        <MobileNav activeNav={activeNav} onNavChange={navigateTo} />
+        {view !== "fullscreen" && (activeTheme === "studio" ? <MobileStudioBar song={currentSong} isPlaying={isPlaying} onTogglePlay={() => setIsPlaying(p => !p)} onOpenFullscreen={() => runVinylTransition("fullscreen")} /> : activeTheme === "f4" ? <MobileReelBar song={currentSong} isPlaying={isPlaying} onTogglePlay={() => setIsPlaying(p => !p)} onOpenFullscreen={() => runVinylTransition("fullscreen")} /> : <MobilePlayerBar song={currentSong} isPlaying={isPlaying} onTogglePlay={() => setIsPlaying(p => !p)} onNext={handleNext} onPrev={handlePrev} progress={progress} onOpenFullscreen={() => runVinylTransition("fullscreen")} themeColor={themeColor} />)}
+        {view !== "fullscreen" && <MobileNav activeNav={activeNav} onNavChange={navigateTo} />}
       </div>
       <AnimatePresence>
         {view === "fullscreen" && (
           isMobile ? (
-            activeTheme === "studio" ? <MobileStudioSync key="studio-player" song={currentSong} isPlaying={isPlaying} onTogglePlay={() => setIsPlaying((p) => !p)} onBack={() => setView("home")} onNext={handleNext} onPrev={handlePrev} progress={progress} currentTime={currentTime} onSeek={handleSeek} isLiked={likedSongs.includes(currentSong?.id)} onToggleLike={() => toggleLike(currentSong?.id)} audioElement={audioRef.current} /> : activeTheme === "f4" ? <MobileReelPlayer key="reel-player" song={currentSong} isPlaying={isPlaying} onTogglePlay={() => setIsPlaying((p) => !p)} onBack={() => setView("home")} onNext={handleNext} onPrev={handlePrev} progress={progress} currentTime={currentTime} onSeek={handleSeek} isLiked={likedSongs.includes(currentSong?.id)} onToggleLike={() => toggleLike(currentSong?.id)} /> : <MobileCassettePlayer key="cassette-player" song={currentSong} isPlaying={isPlaying} onTogglePlay={() => setIsPlaying((p) => !p)} onBack={() => setView("home")} onNext={handleNext} onPrev={handlePrev} progress={progress} currentTime={currentTime} onSeek={handleSeek} themeColor={themeColor} isLiked={likedSongs.includes(currentSong?.id)} onToggleLike={() => toggleLike(currentSong?.id)} isShuffle={isShuffle} repeatMode={repeatMode} songs={songs} onToggleShuffle={() => setIsShuffle(!isShuffle)} onToggleRepeat={() => setRepeatMode(prev => prev === "none" ? "all" : prev === "all" ? "one" : "none")} />
+            activeTheme === "studio" ? <MobileStudioSync key="studio-player" song={currentSong} isPlaying={isPlaying} onTogglePlay={() => setIsPlaying((p) => !p)} onBack={() => setView("home")} onNext={handleNext} onPrev={handlePrev} progress={progress} currentTime={currentTime} onSeek={handleSeek} isLiked={likedSongs.includes(currentSong?.id)} onToggleLike={() => toggleLike(currentSong?.id)} audioElement={audioRef.current} /> : activeTheme === "f4" ? <MobileReelPlayer key="reel-player" song={currentSong} isPlaying={isPlaying} onTogglePlay={() => setIsPlaying((p) => !p)} onBack={() => setView("home")} onNext={handleNext} onPrev={handlePrev} progress={progress} currentTime={currentTime} onSeek={handleSeek} isLiked={likedSongs.includes(currentSong?.id)} onToggleLike={() => toggleLike(currentSong?.id)} /> : <MobileFullscreenPlayer key="fullscreen-player" song={currentSong} isPlaying={isPlaying} onTogglePlay={() => setIsPlaying((p) => !p)} onBack={() => setView("home")} onNext={handleNext} onPrev={handlePrev} progress={progress} currentTime={currentTime} onSeek={handleSeek} themeColor={themeColor} likedSongs={likedSongs} onToggleLike={(id) => toggleLike(id || currentSong?.id)} isShuffle={isShuffle} repeatMode={repeatMode} songs={displaySongsList} onToggleShuffle={() => setIsShuffle(!isShuffle)} onToggleRepeat={() => setRepeatMode(prev => prev === "none" ? "all" : prev === "all" ? "one" : "none")} onSongSelect={handleSongSelect} activeTheme={activeTheme} />
           ) : (
             <motion.div key="fullscreen-player" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }} className="fixed inset-0 z-[100] bg-background">
               <FullscreenPlayerView song={currentSong} songs={songs} activeTheme={activeTheme} isPlaying={isPlaying} onTogglePlay={() => setIsPlaying((p) => !p)} onBack={() => runVinylTransition("home")} onNext={handleNext} onPrev={handlePrev} progress={progress} currentTime={currentTime} volume={volume} onVolumeChange={setVolume} onSeek={handleSeek} themeColor={themeColor} isDark={isDark} isLiked={likedSongs.includes(currentSong?.id)} onToggleLike={() => toggleLike(currentSong?.id)} isAnimating={isAnimating} isShuffle={isShuffle} repeatMode={repeatMode} onToggleShuffle={() => setIsShuffle(!isShuffle)} onToggleRepeat={() => setRepeatMode(prev => prev === "none" ? "all" : prev === "all" ? "one" : "none")} onSongSelect={handleSongSelect} />

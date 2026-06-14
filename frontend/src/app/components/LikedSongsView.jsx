@@ -42,7 +42,7 @@ export function LikedSongsView({ songs, likedSongs, onSongSelect, currentSong, i
 
         {/* Tracks Table */}
         <div className="flex flex-col w-full">
-           <div className="grid grid-cols-[40px_1fr_120px_40px] px-6 py-4 border-b border-white/5 text-foreground/20 text-[10px] font-black uppercase tracking-widest">
+           <div className="grid grid-cols-[30px_1fr_50px] md:grid-cols-[40px_1fr_120px_40px] px-4 md:px-6 py-4 border-b border-white/5 text-foreground/20 text-[10px] font-black uppercase tracking-widest">
               <span>#</span>
               <span>Title</span>
               <span className="hidden md:block">Album</span>
@@ -58,7 +58,7 @@ export function LikedSongsView({ songs, likedSongs, onSongSelect, currentSong, i
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.03 }}
                     onClick={() => onSongSelect(song)}
-                    className={`grid grid-cols-[40px_1fr_120px_40px] items-center px-6 py-4 rounded-3xl transition-all cursor-pointer group ${currentSong?.id === song.id ? 'bg-card/10 text-foreground' : 'hover:bg-card/4 text-foreground/80'}`}
+                    className={`grid grid-cols-[30px_1fr_50px] md:grid-cols-[40px_1fr_120px_40px] items-center px-4 md:px-6 py-4 rounded-3xl transition-all cursor-pointer group ${currentSong?.id === song.id ? 'bg-card/10 text-foreground' : 'hover:bg-card/4 text-foreground/80'}`}
                   >
                      <span className="text-xs font-bold text-foreground/20 group-hover:text-foreground transition-colors">
                         {currentSong?.id === song.id && isPlaying ? <div className="flex items-end gap-[2px] h-3"><div className="w-1 h-full bg-red-500 animate-[bounce_1s_infinite_0.1s]" /><div className="w-1 h-full bg-red-500 animate-[bounce_1s_infinite_0.3s]" /><div className="w-1 h-full bg-red-500 animate-[bounce_1s_infinite_0.5s]" /></div> : i + 1}

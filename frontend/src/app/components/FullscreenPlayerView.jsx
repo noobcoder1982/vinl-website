@@ -54,16 +54,18 @@ export function FullscreenPlayerView(props) {
 
   return (
     <div 
-      className={`w-full h-full overflow-hidden flex relative font-['Outfit'] select-none rounded-[24px] border shadow-2xl transition-colors duration-500 fullscreen-player ${isNeon ? 'border-[#00ffcc]/20' : 'border-border'}`}
+      className={`w-full h-full overflow-hidden flex relative font-['Outfit'] select-none rounded-[24px] border shadow-2xl transition-colors duration-500 fullscreen-player ${isNeon ? 'border-cyan-500/20 bg-[#020206]' : 'border-border'}`}
       style={{ 
-        background: `radial-gradient(circle at 75% 50%, ${themeColor}20 0%, var(--background) 100%)`
+        background: isNeon 
+          ? 'radial-gradient(circle at 75% 50%, rgba(255, 0, 85, 0.15) 0%, #030308 100%)'
+          : `radial-gradient(circle at 75% 50%, ${themeColor}20 0%, var(--background) 100%)`
       }}
     >
       {/* SCANLINES ONLY IF NEON */}
       {isNeon && (
         <>
-          <div className="absolute inset-0 pointer-events-none z-[100] scanlines-crt opacity-[0.1]" />
-          <div className="absolute inset-0 pointer-events-none z-[101] bg-gradient-to-b from-transparent via-[#00ffcc]/[0.012] to-transparent animate-glitch-scan" />
+          <div className="absolute inset-0 pointer-events-none z-[10] bg-cyber-grid opacity-[0.06]" />
+          <div className="absolute inset-0 pointer-events-none z-[11] bg-gradient-to-tr from-cyan-500/[0.03] via-transparent to-pink-500/[0.03]" />
         </>
       )}
 
@@ -74,14 +76,14 @@ export function FullscreenPlayerView(props) {
 
       <div className="absolute top-10 left-10 right-10 z-[60] flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <button onClick={onBack} className={`p-2 rounded-full transition-colors group ${isNeon ? 'hover:bg-[#00ffcc]/10 text-[#00ffcc]/40 hover:text-[#00ffcc]' : 'hover:bg-foreground/5 text-foreground/40'}`}>
+          <button onClick={onBack} className={`p-2 rounded-full transition-colors group ${isNeon ? 'hover:bg-cyan-500/10 text-cyan-400 hover:text-cyan-300' : 'hover:bg-foreground/5 text-foreground/40'}`}>
             <ChevronLeft size={28} className="transition-colors" />
           </button>
-          <button onClick={() => setShowLyrics(!showLyrics)} className={`p-2 rounded-full transition-all ${showLyrics ? 'bg-primary text-background' : isNeon ? 'hover:bg-[#00ffcc]/10 text-[#00ffcc]/40' : 'hover:bg-foreground/5 text-foreground/40'}`}>
+          <button onClick={() => setShowLyrics(!showLyrics)} className={`p-2 rounded-full transition-all ${showLyrics ? 'bg-primary text-background' : isNeon ? 'hover:bg-cyan-500/10 text-cyan-400' : 'hover:bg-foreground/5 text-foreground/40'}`}>
             <Mic2 size={20} />
           </button>
         </div>
-        <div className={`flex items-center gap-3 px-5 py-2 rounded-full border text-[10px] font-black uppercase tracking-[3px] ${isNeon ? 'bg-[#00ffcc]/5 border-[#00ffcc]/20 text-[#00ffcc]' : 'bg-foreground/5 border-border text-foreground/20'}`}>
+        <div className={`flex items-center gap-3 px-5 py-2 rounded-full border text-[10px] font-black uppercase tracking-[3px] ${isNeon ? 'bg-cyan-950/20 border-cyan-500/30 text-cyan-400' : 'bg-foreground/5 border-border text-foreground/20'}`}>
            <span className={isNeon ? 'animate-pulse' : ''}>{showLyrics ? "Sing Along" : "Now Playing"}</span>
         </div>
         <div className="w-[88px]" />
@@ -92,21 +94,21 @@ export function FullscreenPlayerView(props) {
           {!showLyrics ? (
             <motion.div key="info" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="w-full flex flex-col items-center">
               <div className="relative group mb-12">
-                <div className={`absolute inset-0 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 ${isNeon ? 'bg-[#00ffcc]/20' : 'bg-white/5'}`} />
-                <div className={`relative aspect-square w-[340px] md:w-[380px] rounded-[32px] overflow-hidden border shadow-[0_40px_80px_rgba(0,0,0,0.6)] ${isNeon ? 'border-[#00ffcc]/30 p-2 bg-black' : 'border-white/10'}`}>
-                  <img src={song?.imageUrl} alt={song?.title} className={`w-full h-full object-cover rounded-[24px] ${isNeon ? 'grayscale-[0.4] contrast-[1.1]' : ''}`} />
+                <div className={`absolute inset-0 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 ${isNeon ? 'bg-cyan-500/20' : 'bg-white/5'}`} />
+                <div className={`relative aspect-square w-[340px] md:w-[380px] rounded-[32px] overflow-hidden border shadow-[0_40px_80px_rgba(0,0,0,0.6)] ${isNeon ? 'border-cyan-500/30 p-2 bg-[#030308]' : 'border-white/10'}`}>
+                  <img src={song?.imageUrl} alt={song?.title} className={`w-full h-full object-cover rounded-[24px] ${isNeon ? 'grayscale-[0.1] contrast-[1.05]' : ''}`} />
                 </div>
               </div>
               <div className="flex flex-col items-center text-center">
                   <div className="flex items-center gap-4 mb-4">
-                    <h1 className={`text-[48px] font-black tracking-tighter line-clamp-1 leading-none player-title ${isNeon ? 'text-[#ffff00] glow-amber-text italic' : 'text-foreground'}`}>{song?.title}</h1>
+                    <h1 className={`text-[48px] font-black tracking-tighter line-clamp-1 leading-none player-title uppercase ${isNeon ? 'text-[#ff0055] [text-shadow:0_0_10px_rgba(255,0,85,0.5)] font-mono italic' : 'text-foreground'}`}>{song?.title}</h1>
                     <button onClick={onToggleLike} className="mt-2">
-                      <Heart size={24} className={`transition-all ${isLiked ? "text-[#FF1E1E] fill-[#FF1E1E]" : isNeon ? "text-[#00ffcc]/20 hover:text-[#00ffcc]" : "text-foreground/20 hover:text-foreground"}`} />
+                      <Heart size={24} className={`transition-all ${isLiked ? "text-[#FF1E1E] fill-[#FF1E1E]" : isNeon ? "text-cyan-500/20 hover:text-cyan-400" : "text-foreground/20 hover:text-foreground"}`} />
                     </button>
                   </div>
                   <div className="flex items-center gap-6 mb-12">
-                    <p className={`text-xl font-medium uppercase tracking-widest player-artist ${isNeon ? 'text-[#00ffcc]/60' : 'text-foreground/40'}`}>{song?.artist}</p>
-                    {song?.language && <span className={`px-3 py-1 rounded-full border text-[10px] font-black uppercase tracking-[2px] leading-none ${isNeon ? 'bg-[#00ffcc]/10 border-[#00ffcc]/30 text-[#00ffcc]' : 'bg-foreground/5 border-border text-foreground/40'}`}>{song.language}</span>}
+                    <p className={`text-xl font-medium uppercase tracking-widest player-artist ${isNeon ? 'text-cyan-400 opacity-90 [text-shadow:0_0_6px_rgba(0,240,255,0.4)]' : 'text-foreground/40'}`}>{song?.artist}</p>
+                    {song?.language && <span className={`px-3 py-1 rounded-full border text-[10px] font-black uppercase tracking-[2px] leading-none ${isNeon ? 'bg-cyan-950/20 border-cyan-500/30 text-cyan-400' : 'bg-foreground/5 border-border text-foreground/40'}`}>{song.language}</span>}
                   </div>
               </div>
             </motion.div>
@@ -115,7 +117,7 @@ export function FullscreenPlayerView(props) {
               {lyrics.length > 0 ? (
                 <div className="flex flex-col gap-8 py-[100px]">
                   {lyrics.map((line, i) => (
-                    <motion.p key={i} animate={{ opacity: currentLyricIndex === i ? 1 : 0.2, scale: currentLyricIndex === i ? 1.05 : 1, x: currentLyricIndex === i ? 10 : 0 }} className={`text-[40px] font-black tracking-tighter leading-tight transition-all duration-500 cursor-pointer hover:opacity-100 ${currentLyricIndex === i ? 'text-primary' : isNeon ? 'text-[#00ffcc]' : 'text-foreground'}`} onClick={() => onSeek((line.time / (song?.duration || 1)) * 100)}>{line.text}</motion.p>
+                    <motion.p key={i} animate={{ opacity: currentLyricIndex === i ? 1 : 0.2, scale: currentLyricIndex === i ? 1.05 : 1, x: currentLyricIndex === i ? 10 : 0 }} className={`text-[40px] font-black tracking-tighter leading-tight transition-all duration-500 cursor-pointer hover:opacity-100 ${currentLyricIndex === i ? 'text-primary animate-pulse' : isNeon ? 'text-cyan-400' : 'text-foreground'}`} onClick={() => onSeek((line.time / (song?.duration || 1)) * 100)}>{line.text}</motion.p>
                   ))}
                 </div>
               ) : (
@@ -131,28 +133,28 @@ export function FullscreenPlayerView(props) {
         <div className="w-full max-w-[440px] mb-12 flex flex-col items-center mt-auto">
            <div 
              ref={progressBarRef}
-             className={`w-full h-[6px] rounded-full cursor-pointer relative mb-6 group/progress ${isNeon ? 'bg-[#00ffcc]/10' : 'bg-foreground/10'}`}
+             className={`w-full h-[6px] rounded-full cursor-pointer relative mb-6 group/progress ${isNeon ? 'bg-cyan-950/40' : 'bg-foreground/10'}`}
              onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); const rect = e.currentTarget.getBoundingClientRect(); onSeek((e.clientX - rect.left) / rect.width * 100); }}
              onPointerMove={(e) => { if (e.buttons === 1) { const rect = e.currentTarget.getBoundingClientRect(); onSeek(Math.max(0, Math.min(100, (e.clientX - rect.left) / rect.width * 100))); } }}
            >
-             <div className={`absolute inset-y-0 left-0 rounded-full progress-bar-fill ${isNeon ? 'bg-[#ffff00] shadow-[0_0_15px_#ffff00]' : 'bg-primary shadow-[0_0_10px_var(--primary)]'}`} style={{ width: `${progress}%` }} />
+             <div className={`absolute inset-y-0 left-0 rounded-full progress-bar-fill ${isNeon ? 'bg-[#ff0055] shadow-[0_0_10px_#ff0055]' : 'bg-primary shadow-[0_0_10px_var(--primary)]'}`} style={{ width: `${progress}%` }} />
            </div>
-           <div className={`w-full flex justify-between text-xs font-bold tabular-nums tracking-widest px-1 ${isNeon ? 'text-[#00ffcc]/40' : 'text-foreground/40'}`}>
+           <div className={`w-full flex justify-between text-xs font-bold tabular-nums tracking-widest px-1 ${isNeon ? 'text-cyan-500/40' : 'text-foreground/40'}`}>
              <span>{formatTime(currentTime)}</span>
              <span>{formatTime(song?.duration || 0)}</span>
            </div>
         </div>
 
         <div className="flex items-center gap-10">
-           <button onClick={onToggleShuffle} className={`transition-all duration-300 ${isShuffle ? 'text-primary' : isNeon ? 'text-[#00ffcc]/20 hover:text-[#00ffcc]' : 'text-foreground/20 hover:text-foreground'} relative group/shuf`}>
+           <button onClick={onToggleShuffle} className={`transition-all duration-300 ${isShuffle ? 'text-primary' : isNeon ? 'text-cyan-500/20 hover:text-cyan-400' : 'text-foreground/20 hover:text-foreground'} relative group/shuf`}>
               <Shuffle size={20} className={isShuffle ? "relative z-10" : ""} />
            </button>
-           <button onClick={onPrev} className={`${isNeon ? 'text-[#ff0055]' : 'text-foreground/60 hover:text-foreground'} transition-colors active:scale-90`}><SkipBack size={16} className="fill-current" /></button>
-           <button onClick={onTogglePlay} className={`w-20 h-20 rounded-full border-2 flex items-center justify-center relative group active:scale-95 transition-all ${isNeon ? 'border-[#00ffcc]/40 shadow-[0_0_20px_rgba(0,255,204,0.2)]' : 'border-border'}`}>
-              {isPlaying ? <Pause size={32} className={`fill-current ${isNeon ? 'text-[#00ffcc]' : 'text-foreground'}`} /> : <Play size={32} className={`fill-current ml-1 ${isNeon ? 'text-[#00ffcc]' : 'text-foreground'}`} />}
+           <button onClick={onPrev} className={`${isNeon ? 'text-[#ff0055] hover:text-[#ff3377]' : 'text-foreground/60 hover:text-foreground'} transition-colors active:scale-90`}><SkipBack size={16} className="fill-current" /></button>
+           <button onClick={onTogglePlay} className={`w-20 h-20 rounded-full border-2 flex items-center justify-center relative group active:scale-95 transition-all ${isNeon ? 'border-cyan-500/40 shadow-[0_0_20px_rgba(0,240,255,0.25)] hover:border-cyan-400 hover:bg-cyan-950/10' : 'border-border'}`}>
+              {isPlaying ? <Pause size={32} className={`fill-current ${isNeon ? 'text-cyan-400' : 'text-foreground'}`} /> : <Play size={32} className={`fill-current ml-1 ${isNeon ? 'text-cyan-400' : 'text-foreground'}`} />}
            </button>
-           <button onClick={onNext} className={`${isNeon ? 'text-[#ff0055]' : 'text-foreground/60 hover:text-foreground'} transition-colors active:scale-90`}><SkipForward size={16} className="fill-current" /></button>
-           <button onClick={onToggleRepeat} className={`transition-all duration-300 ${repeatMode !== 'none' ? 'text-primary' : isNeon ? 'text-[#00ffcc]/20 hover:text-[#00ffcc]' : 'text-foreground/20 hover:text-foreground'} relative group/rep`}>
+           <button onClick={onNext} className={`${isNeon ? 'text-[#ff0055] hover:text-[#ff3377]' : 'text-foreground/60 hover:text-foreground'} transition-colors active:scale-90`}><SkipForward size={16} className="fill-current" /></button>
+           <button onClick={onToggleRepeat} className={`transition-all duration-300 ${repeatMode !== 'none' ? 'text-primary' : isNeon ? 'text-cyan-500/20 hover:text-cyan-400' : 'text-foreground/20 hover:text-foreground'} relative group/rep`}>
               {repeatMode === 'one' ? <Repeat1 size={20} className="relative z-10" /> : <Repeat size={20} className={repeatMode === 'all' ? "relative z-10" : ""} />}
            </button>
         </div>
@@ -160,25 +162,24 @@ export function FullscreenPlayerView(props) {
 
       <div className="flex-1 h-full flex items-center justify-center relative pr-[80px] z-[55]">
         <div ref={vinylRef} onMouseDown={(e) => { e.preventDefault(); setVolumeDragging(true); const rect = vinylRef.current.getBoundingClientRect(); setLastAngle(Math.atan2(e.clientY - (rect.top + rect.height/2), e.clientX - (rect.left + rect.width/2)) * (180/Math.PI)); }} className="relative w-full max-w-[650px] aspect-square rounded-full cursor-grab active:cursor-grabbing z-20 group">
-           <motion.div id="fullscreen-vinyl-target" className={`w-full h-full rounded-full relative overflow-hidden transition-opacity duration-300 vinyl-record ${isAnimating ? 'opacity-0' : 'opacity-100'}`} style={{ background: isNeon ? "repeating-radial-gradient(#002222 0px, #000 1px, #1a1a1a 4px)" : "repeating-radial-gradient(#1a1a1a 0px, #000 1px, #1a1a1a 4px)", boxShadow: isNeon ? "0 50px 100px rgba(0,255,204,0.2), inset 0 0 40px rgba(0,255,150,0.05)" : "0 50px 100px rgba(0,0,0,0.8), inset 0 0 40px rgba(255,255,255,0.05)", rotate: vinylRotation, animation: 'spin 5s linear infinite', animationPlayState: isPlaying && !volumeDragging ? 'running' : 'paused' }}>
-              <div className={`absolute inset-0 rounded-full opacity-30 ${isNeon ? 'bg-cyan-900/20' : ''}`} style={{ background: "conic-gradient(from 0deg, transparent 0, #333 45deg, transparent 90deg, #333 135deg, transparent 180deg, #333 225deg, transparent 270deg, #333 315deg, transparent 360deg)" }} />
-              <div className={`absolute inset-[33%] rounded-full overflow-hidden border-2 shadow-inner vinyl-label ${isNeon ? 'border-[#00ffcc]/50 shadow-[0_0_20px_#00ffcc]' : 'border-black/50'}`}><img src={song?.imageUrl} className={`w-full h-full object-cover ${isNeon ? 'contrast-[1.2]' : 'grayscale-[0.2]'}`} /></div>
-              <div className={`absolute w-4 h-4 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] border ${isNeon ? 'bg-[#00ffcc] border-[#00ffcc]' : 'bg-[#ccc] border-black/40'}`} />
+           <motion.div id="fullscreen-vinyl-target" className={`w-full h-full rounded-full relative overflow-hidden transition-opacity duration-300 vinyl-record ${isAnimating ? 'opacity-0' : 'opacity-100'}`} style={{ background: "repeating-radial-gradient(#151515 0px, #020202 1px, #151515 3px, #0c0c0c 4px)", boxShadow: isNeon ? "0 30px 70px rgba(0,240,255,0.2), inset 0 0 40px rgba(0,240,255,0.05)" : "0 50px 100px rgba(0,0,0,0.8), inset 0 0 40px rgba(255,255,255,0.05)", rotate: vinylRotation, animation: 'spin 5s linear infinite', animationPlayState: isPlaying && !volumeDragging ? 'running' : 'paused' }}>
+              <div className="absolute inset-0 rounded-full opacity-30" style={{ background: "conic-gradient(from 0deg, transparent 0, #333 45deg, transparent 90deg, #333 135deg, transparent 180deg, #333 225deg, transparent 270deg, #333 315deg, transparent 360deg)" }} />
+              <div className={`absolute inset-[33%] rounded-full overflow-hidden border-2 shadow-inner vinyl-label ${isNeon ? 'border-cyan-500/40 shadow-[0_0_15px_rgba(0,240,255,0.4)]' : 'border-black/50'}`}><img src={song?.imageUrl} className={`w-full h-full object-cover ${isNeon ? 'grayscale-[0.05] contrast-[1.05]' : 'grayscale-[0.2]'}`} /></div>
+              <div className={`absolute w-4 h-4 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)] border ${isNeon ? 'bg-cyan-400 border-cyan-400 shadow-[0_0_6px_#00f0ff]' : 'bg-[#ccc] border-black/40'}`} />
            </motion.div>
         </div>
         <div className="absolute z-30 pointer-events-none" style={{ top: '8%', right: '12%', width: '400px', height: '500px', transformOrigin: '350px 50px', transform: `rotate(${tonearmAngle}deg)`, transition: 'transform 1.2s cubic-bezier(0.22, 1, 0.36, 1)' }}>
-          <svg className={`absolute inset-0 pointer-events-none drop-shadow-2xl ${isNeon ? 'text-[#00ffcc]' : ''}`} width="400" height="500" viewBox="0 0 400 500">
+          <svg className={`absolute inset-0 pointer-events-none drop-shadow-2xl ${isNeon ? 'text-cyan-400' : ''}`} width="400" height="500" viewBox="0 0 400 500">
             <path d="M 350,50 C 350,180 250,220 230,320 C 220,380 230,410 230,430" fill="none" stroke="currentColor" strokeWidth="14" strokeLinecap="round" />
           </svg>
         </div>
-        <div className={`absolute bottom-10 right-10 flex items-center gap-6 z-[60] backdrop-blur-xl px-8 py-6 rounded-3xl border shadow-2xl min-w-[280px] ${isNeon ? 'bg-[#00ffcc]/5 border-[#00ffcc]/20' : 'bg-card/80 border-border'}`}>
-           <button onClick={() => onVolumeChange(volume === 0 ? 70 : 0)} className={`transition-colors ${isNeon ? 'text-[#00ffcc]' : 'text-foreground/40 hover:text-foreground'}`}>{volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}</button>
+        <div className={`absolute bottom-10 right-10 flex items-center gap-6 z-[60] backdrop-blur-xl px-8 py-6 rounded-3xl border shadow-2xl min-w-[280px] ${isNeon ? 'bg-zinc-950/90 border-cyan-500/20 shadow-[0_15px_30px_rgba(0,240,255,0.15)]' : 'bg-card/80 border-border'}`}>
+           <button onClick={() => onVolumeChange(volume === 0 ? 70 : 0)} className={`transition-colors ${isNeon ? 'text-cyan-400' : 'text-foreground/40 hover:text-foreground'}`}>{volume === 0 ? <VolumeX size={20} /> : <Volume2 size={20} />}</button>
            <div className="flex-1 flex flex-col gap-2"><Slider value={[volume]} onValueChange={(val) => onVolumeChange(val[0])} max={100} step={1} className="cursor-pointer" /></div>
         </div>
       </div>
       <style>{`
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .scanlines-crt {
           background: repeating-linear-gradient(
             0deg,
             rgba(0, 255, 204, 0.05) 0px,

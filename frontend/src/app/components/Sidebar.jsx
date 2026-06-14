@@ -121,73 +121,118 @@ export function Sidebar({
       {/* MINI PLAYER (Neon or Glass) */}
       {song && (
         <AnimatePresence>
-          {isNeon ? (
-            <motion.div 
-              layout
-              className={`absolute bottom-[16px] left-[12px] right-[12px] rounded-[24px] p-4 flex flex-col bg-[#020204] border-2 border-[#00ffcc]/20 overflow-hidden group/mini mini-player cursor-pointer
-                ${isCollapsed ? 'h-[56px] items-center justify-center p-0' : ''}
-              `}
-              onClick={onOpenFullscreen}
-            >
-              {!isCollapsed ? (
-                <>
-                  <header className="flex items-center justify-between mb-3 border-b border-[#00ffcc]/10 pb-2">
-                     <span className="text-[8px] font-black text-[#ffff00] tracking-[3px]">UPLINK_STABLE</span>
-                     <Terminal size={10} className="text-[#00ffcc]" />
-                  </header>
-                  <div className="h-10 w-full flex items-end gap-[3px] mb-3">
-                     {Array.from({ length: 12 }).map((_, i) => (
-                       <motion.div key={i} animate={isPlaying ? { height: [`${20 + Math.random()*80}%`, `${20 + Math.random()*80}%`] } : { height: '20%' }} transition={{ duration: 0.3, repeat: isPlaying ? Infinity : 0 }} className="flex-1 bg-[#00ffcc] shadow-[0_0_8px_#00ffcc]" />
-                     ))}
+          <motion.div 
+            layout
+            className={`absolute bottom-[16px] left-[13px] right-[13px] rounded-[24px] flex flex-col items-center shadow-2xl border transition-all duration-500 mini-player cursor-pointer
+              ${isCollapsed ? 'p-[8px] h-[58px] justify-center' : 'p-[10px]'}
+              ${isNeon 
+                ? 'bg-[#05050d]/90 border-cyan-500/20 shadow-[0_10px_30px_rgba(0,240,255,0.15)] text-white' 
+                : 'bg-card border-border text-foreground'
+              }
+            `} 
+            style={{ backdropFilter: 'blur(32px)' }}
+            onClick={onOpenFullscreen}
+          >
+            {/* Mini Vinyl Container */}
+            <div className={`w-full aspect-square bg-foreground/5 rounded-[20px] flex items-center justify-center p-[8px] shadow-sm relative group border transition-all 
+              ${isCollapsed ? 'hidden' : 'mb-[12px]'}
+              ${isNeon ? 'border-cyan-500/10 bg-cyan-950/5' : 'border-border'}
+            `}>
+               <div id="mini-vinyl-source" className={`w-[96%] aspect-square rounded-full flex items-center justify-center shadow-2xl relative overflow-hidden transition-opacity vinyl-record ${isFullScreen ? 'opacity-0' : 'opacity-100'}`}>
+                  {/* Vinyl Record Body */}
+                  <div className={`absolute inset-0 rounded-full border-2 
+                    ${isNeon ? 'bg-[#0d0d12] border-cyan-500/30 shadow-[0_0_15px_rgba(0,240,255,0.2)]' : 'bg-[#111] border-black/50'}
+                  `}
+                    style={{
+                      background: "repeating-radial-gradient(#151515 0px, #020202 1px, #151515 3px, #0c0c0c 4px)"
+                    }}
+                  />
+                  <div className="w-full h-full relative" style={{ animation: isPlaying ? 'spin 5s linear infinite' : 'none' }}>
+                     {/* Label Cover */}
+                     <div className={`absolute inset-[30%] rounded-full overflow-hidden border bg-zinc-800
+                       ${isNeon ? 'border-fuchsia-500/40 shadow-[0_0_10px_rgba(255,0,85,0.4)]' : 'border-black/20'}
+                     `}>
+                       <img src={song?.imageUrl} className="w-full h-full object-cover select-none pointer-events-none" alt="" />
+                     </div>
                   </div>
-                  <p className="text-[11px] font-black text-[#ffff00] truncate uppercase tracking-tighter mb-1 font-mono italic">{song.title.replace(/\s/g, '_')}</p>
-                  <p className="text-[9px] font-mono text-[#00ffcc]/40 uppercase tracking-widest mb-4">{song.artist.replace(/\s/g, '_')}</p>
-                  <div className="flex items-center justify-center gap-4 mb-4">
-                     <button onClick={(e) => { e.stopPropagation(); onPrev(); }} className="text-[#ff0055] hover:scale-110 active:scale-95 transition-all"><SkipBack size={16} /></button>
-                     <button onClick={(e) => { e.stopPropagation(); onTogglePlay(); }} className="w-10 h-10 bg-[#ffff00] text-black flex items-center justify-center rounded-lg shadow-lg hover:scale-105 active:scale-90 transition-all">{isPlaying ? <Pause size={18} className="fill-current" /> : <Play size={18} className="fill-current ml-0.5" />}</button>
-                     <button onClick={(e) => { e.stopPropagation(); onNext(); }} className="text-[#ff0055] hover:scale-110 active:scale-95 transition-all"><SkipForward size={16} /></button>
-                  </div>
-                  <div ref={progressBarRef} className="w-full h-1 bg-[#ffff00]/10 cursor-pointer overflow-hidden relative" onPointerDown={handlePointerDown} onPointerMove={handlePointerMove}><div className="h-full bg-[#ffff00] shadow-[0_0_10px_#ffff00]" style={{ width: `${progress}%` }} /></div>
-                </>
-              ) : (
-                <Terminal size={24} className="text-[#00ffcc] animate-pulse" />
-              )}
-            </motion.div>
-          ) : (
-            <motion.div 
-              layout
-              className={`absolute bottom-[16px] left-[13px] right-[13px] rounded-[24px] flex flex-col items-center shadow-2xl border border-border transition-all duration-500 mini-player cursor-pointer
-                ${isCollapsed ? 'p-[8px] h-[58px] justify-center' : 'p-[10px]'}
-              `} 
-              style={{ backgroundColor: `var(--card)`, backdropFilter: 'blur(32px)' }}
-              onClick={onOpenFullscreen}
-            >
-              <div className={`w-full aspect-square bg-foreground/5 rounded-[20px] flex items-center justify-center p-[8px] shadow-sm relative group border border-border transition-all ${isCollapsed ? 'hidden' : 'mb-[12px]'}`}>
-                 <div id="mini-vinyl-source" className={`w-[96%] aspect-square rounded-full flex items-center justify-center shadow-2xl relative overflow-hidden transition-opacity vinyl-record ${isFullScreen ? 'opacity-0' : 'opacity-100'}`}>
-                    <div className="absolute inset-0 rounded-full bg-[#111] border-2 border-black/50" />
-                    <div className="w-full h-full relative" style={{ animation: isPlaying ? 'spin 5s linear infinite' : 'none' }}>
-                       <div className="absolute inset-[30%] rounded-full bg-white overflow-hidden border border-black/20"><img src={song?.imageUrl} className="w-full h-full object-cover" /></div>
-                    </div>
-                 </div>
-              </div>
-              {!isCollapsed ? (
-                <>
-                  <p className="text-[14px] font-black mb-[4px] text-center w-full truncate px-[4px] text-foreground tracking-tight">{song?.title}</p>
-                  <div className="flex items-center gap-[12px] mb-[14px]">
-                     <button onClick={(e) => { e.stopPropagation(); onPrev(); }} className="text-foreground/60 hover:text-foreground transition-all"><SkipBack size={16} className="fill-current" /></button>
-                     <button onClick={(e) => { e.stopPropagation(); onTogglePlay(); }} className="w-[38px] h-[38px] rounded-full flex items-center justify-center bg-white text-black hover:scale-105 transition-all shadow-lg">{isPlaying ? <Pause size={16} className="fill-current" /> : <Play size={16} className="fill-current ml-0.5" />}</button>
-                     <button onClick={(e) => { e.stopPropagation(); onNext(); }} className="text-foreground/60 hover:text-foreground transition-all"><SkipForward size={16} className="fill-current" /></button>
-                  </div>
-                  <div ref={progressBarRef} className="w-[85%] h-[3.5px] rounded-full relative cursor-pointer bg-foreground/10 overflow-hidden mb-4" onPointerDown={handlePointerDown} onPointerMove={handlePointerMove}><div className="absolute top-0 left-0 h-full rounded-full bg-white shadow-[0_0_8px_white]" style={{ width: `${progress}%` }} /></div>
-                </>
-              ) : (
-                 <div className="w-10 h-10 rounded-full border-2 border-foreground/10 flex items-center justify-center relative overflow-hidden">
-                    <img src={song?.imageUrl} className={`w-full h-full object-cover ${isPlaying ? 'animate-spin-slow' : ''}`} />
-                    <div className="absolute inset-0 bg-black/20" />
-                 </div>
-              )}
-            </motion.div>
-          )}
+                  {/* Spindle Pin */}
+                  <div className={`absolute w-3 h-3 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)] border
+                    ${isNeon ? 'bg-cyan-400 border-cyan-400' : 'bg-[#ccc] border-black/40'}
+                  `} />
+               </div>
+            </div>
+
+            {!isCollapsed ? (
+              <>
+                <p className={`text-[13px] font-black mb-[4px] text-center w-full truncate px-[4px] tracking-tight uppercase
+                  ${isNeon ? 'text-[#ff0055] [text-shadow:0_0_8px_rgba(255,0,85,0.4)] font-mono italic' : 'text-foreground'}
+                `}>
+                  {song?.title}
+                </p>
+                <p className={`text-[9px] font-bold text-center w-full truncate px-[4px] uppercase tracking-widest mb-3.5
+                  ${isNeon ? 'text-cyan-400 opacity-80 [text-shadow:0_0_5px_rgba(0,240,255,0.3)]' : 'opacity-40 text-foreground'}
+                `}>
+                  {song?.artist}
+                </p>
+                
+                <div className="flex items-center gap-[12px] mb-[14px]">
+                   <button 
+                     onClick={(e) => { e.stopPropagation(); onPrev(); }} 
+                     className={`transition-all active:scale-90
+                       ${isNeon ? 'text-cyan-400 hover:text-cyan-300' : 'text-foreground/60 hover:text-foreground'}
+                     `}
+                   >
+                     <SkipBack size={16} className="fill-current" />
+                   </button>
+                   
+                   <button 
+                     onClick={(e) => { e.stopPropagation(); onTogglePlay(); }} 
+                     className={`w-[38px] h-[38px] rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg
+                       ${isNeon 
+                         ? 'bg-[#ff0055] text-white hover:bg-[#ff0055]/90 shadow-[0_0_15px_rgba(255,0,85,0.4)]' 
+                         : 'bg-white text-black'
+                       }
+                     `}
+                   >
+                     {isPlaying ? <Pause size={16} className="fill-current" /> : <Play size={16} className="fill-current ml-0.5" />}
+                   </button>
+                   
+                   <button 
+                     onClick={(e) => { e.stopPropagation(); onNext(); }} 
+                     className={`transition-all active:scale-90
+                       ${isNeon ? 'text-cyan-400 hover:text-cyan-300' : 'text-foreground/60 hover:text-foreground'}
+                     `}
+                   >
+                     <SkipForward size={16} className="fill-current" />
+                   </button>
+                </div>
+                
+                {/* Progress Seek Bar */}
+                <div 
+                  ref={progressBarRef} 
+                  className={`w-[85%] h-[3.5px] rounded-full relative cursor-pointer overflow-hidden mb-4
+                    ${isNeon ? 'bg-cyan-950/40' : 'bg-foreground/10'}
+                  `} 
+                  onPointerDown={handlePointerDown} 
+                  onPointerMove={handlePointerMove}
+                >
+                  <div 
+                    className={`absolute top-0 left-0 h-full rounded-full transition-all
+                      ${isNeon ? 'bg-cyan-400 shadow-[0_0_8px_#00f0ff]' : 'bg-white shadow-[0_0_8px_white]'}
+                    `} 
+                    style={{ width: `${progress}%` }} 
+                  />
+                </div>
+              </>
+            ) : (
+               <div className={`w-10 h-10 rounded-full border flex items-center justify-center relative overflow-hidden transition-all
+                 ${isNeon ? 'border-cyan-500/40 shadow-[0_0_8px_rgba(0,240,255,0.3)] animate-spin-slow' : ''}
+               `}>
+                  <img src={song?.imageUrl} className={`w-full h-full object-cover rounded-full ${isPlaying && !isNeon ? 'animate-spin-slow' : ''}`} alt="" />
+                  <div className="absolute inset-0 bg-black/10" />
+               </div>
+            )}
+          </motion.div>
         </AnimatePresence>
       )}
       <style>{`

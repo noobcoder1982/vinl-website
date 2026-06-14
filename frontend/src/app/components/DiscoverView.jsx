@@ -331,7 +331,7 @@ export function DiscoverView({ onSongSelect, currentSong, isPlaying, likedSongs 
                   <h3 className="text-2xl font-black italic uppercase tracking-tighter">AI Synthesized For You</h3>
                </div>
                
-               <div className="flex md:flex-row flex-col gap-4 overflow-x-auto no-scrollbar pb-4 snap-x">
+               <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4 snap-x w-full">
                   {filteredSongs.slice(0, 5).map((song) => (
                      <motion.div 
                         key={song.id}

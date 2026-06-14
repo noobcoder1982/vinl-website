@@ -23,164 +23,160 @@ const NAV_ITEMS = [
 function MobilePlayerBar({ song, isPlaying, onTogglePlay, onNext, onPrev, progress, onOpenFullscreen, themeColor }) {
   if (!song) return null;
 
+  const radius = 21;
+  const strokeCirc = 2 * Math.PI * radius;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
-      className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[1000] w-[90%] max-w-[360px] flex items-center justify-between bg-black text-white p-2.5 pl-3 pr-5 rounded-[32px] shadow-[0_40px_80px_rgba(0,0,0,0.8)] border border-white/10 active:scale-[0.98] transition-all"
+      onClick={onOpenFullscreen}
+      className="fixed bottom-[92px] left-1/2 -translate-x-1/2 z-[1000] w-[90%] max-w-[360px] flex items-center justify-between mobile-player-capsule text-foreground p-2 pl-3 pr-4 rounded-[32px] border cursor-pointer active:scale-[0.98] transition-all"
     >
       {/* Liquid Spinning Record */}
       <div 
-        onClick={onOpenFullscreen}
-        className="flex items-center gap-4 group"
+        className="flex items-center gap-3.5 group min-w-0"
       >
-        <div className="relative w-14 h-14">
+        <div className="relative w-12 h-12 flex-none">
           {/* Outer Progress Glow */}
-          <svg className="absolute inset-0 -rotate-90 w-full h-full p-0.5">
-            <circle cx="28" cy="28" r="25" fill="none" stroke="white" strokeWidth="1" strokeDasharray="157" strokeDashoffset={157 - (157 * progress) / 100} strokeLinecap="round" className="transition-all duration-300 opacity-60" />
-            <circle cx="28" cy="28" r="25" fill="none" stroke="white" strokeWidth="1" className="opacity-5" />
+          <svg 
+            width="48" 
+            height="48" 
+            viewBox="0 0 48 48" 
+            className="absolute inset-0 -rotate-90 pointer-events-none z-10"
+          >
+            <circle 
+              cx="24" 
+              cy="24" 
+              r={radius} 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="1.5" 
+              className="opacity-[0.06] text-foreground" 
+            />
+            <circle 
+              cx="24" 
+              cy="24" 
+              r={radius} 
+              fill="none" 
+              stroke={themeColor || "var(--theme-accent, #ff0055)"} 
+              strokeWidth="2" 
+              strokeDasharray={strokeCirc} 
+              strokeDashoffset={strokeCirc - (strokeCirc * progress) / 100} 
+              strokeLinecap="round" 
+              className="transition-all duration-300"
+              style={{
+                filter: `drop-shadow(0 0 2.5px ${themeColor || "var(--theme-accent, #ff0055)"}80)`
+              }}
+            />
           </svg>
           
-          <div className={`w-10 h-10 rounded-full overflow-hidden absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-white/20 shadow-2xl ${isPlaying ? 'animate-spin-slow' : ''}`}>
-            <img src={song.imageUrl} className="w-full h-full object-cover grayscale-[0.2]" />
+          {/* Mini Vinyl Record */}
+          <div 
+            className={`absolute w-10 h-10 rounded-full overflow-hidden top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border border-black/45 shadow-lg select-none pointer-events-none transition-transform duration-500
+              ${isPlaying ? 'animate-spin-slow' : ''}
+            `}
+            style={{
+              background: "repeating-radial-gradient(#151515 0px, #020202 1px, #151515 3px, #0c0c0c 4px)",
+              willChange: "transform"
+            }}
+          >
+            {/* Album Cover label */}
+            <div className="absolute inset-[28%] rounded-full overflow-hidden border border-black/30 bg-zinc-800">
+              <img src={song.imageUrl} className="w-full h-full object-cover select-none pointer-events-none" alt="" />
+              <div className="absolute inset-0 bg-black/5" />
+            </div>
+            
+            {/* Center hole spindle pin */}
+            <div className="absolute w-2 h-2 rounded-full bg-gradient-to-tr from-zinc-400 to-zinc-200 border border-black/40 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)]" />
           </div>
         </div>
 
-        <div className="flex flex-col justify-center gap-0.5">
-           <span className="text-[12px] font-black uppercase tracking-tight truncate max-w-[120px]">{song.title}</span>
-           <span className="text-[9px] font-bold text-white/30 uppercase tracking-[3px] truncate max-w-[100px]">{song.artist}</span>
+        <div className="flex flex-col justify-center gap-0.5 truncate">
+           <span className="text-[12px] font-black uppercase tracking-tight truncate max-w-[110px]">{song.title}</span>
+           <span className="text-[9px] font-bold opacity-40 uppercase tracking-[2px] truncate max-w-[90px]">{song.artist}</span>
         </div>
       </div>
 
       {/* Control Set */}
-      <div className="flex items-center gap-3">
-         <button onClick={onPrev} className="text-white/20 hover:text-white transition-colors"><SkipBack size={16} fill="currentColor" /></button>
+      <div className="flex items-center gap-3 flex-none" onClick={(e) => e.stopPropagation()}>
+         <button onClick={onPrev} className="opacity-40 hover:opacity-100 transition-opacity p-1.5"><SkipBack size={14} fill="currentColor" /></button>
          <button 
-           onClick={(e) => { e.stopPropagation(); onTogglePlay(); }}
-           className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center shadow-xl active:scale-90 transition-transform"
+           onClick={onTogglePlay}
+           className="w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center shadow-lg active:scale-90 transition-transform"
          >
-           {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-0.5" />}
+           {isPlaying ? <Pause size={14} fill="currentColor" /> : <Play size={14} fill="currentColor" className="ml-0.5" />}
          </button>
-         <button onClick={onNext} className="text-white/20 hover:text-white transition-colors"><SkipForward size={16} fill="currentColor" /></button>
+         <button onClick={onNext} className="opacity-40 hover:opacity-100 transition-opacity p-1.5"><SkipForward size={14} fill="currentColor" /></button>
       </div>
     </motion.div>
   );
 }
 
 /* ────────────────────────────────────────────
-   NIAGARA GESTURE SIDEBAR (Strict Right)
-   Press and slide vertically to scroll through pages.
-   Release on an item to navigate.
+   NIAGARA FLOATING TAB DOCK (Mobile Bottom Capsule)
+   Glassmorphic bar with spring active bubbles and micro-animations.
    ──────────────────────────────────────────── */
 function MobileNav({ activeNav, onNavChange }) {
-  const [isGesturing, setIsGesturing] = useState(false);
-  const [hoverIdx, setHoverIdx] = useState(null);
-  const itemsRef = useRef([]);
-
-  const handlePointerMove = (e) => {
-    if (!isGesturing) return;
-    const y = e.clientY;
-    
-    // Find closest item
-    let closestIdx = 0;
-    let minDist = Infinity;
-    
-    itemsRef.current.forEach((el, idx) => {
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const centerY = rect.top + rect.height / 2;
-      const dist = Math.abs(y - centerY);
-      if (dist < minDist) {
-        minDist = dist;
-        closestIdx = idx;
-      }
-    });
-
-    if (closestIdx !== hoverIdx) {
-      setHoverIdx(closestIdx);
-    }
-  };
-
-  const handlePointerUp = () => {
-    if (isGesturing && hoverIdx !== null) {
-      onNavChange(NAV_ITEMS[hoverIdx].id);
-    }
-    setIsGesturing(false);
-    setHoverIdx(null);
-  };
-
   return (
-    <div 
-      className="fixed right-0 top-1/2 -translate-y-1/2 w-12 z-[5000] flex flex-col items-center justify-center pointer-events-auto touch-none select-none py-10"
-      onPointerDown={(e) => {
-        setIsGesturing(true);
-        handlePointerMove(e);
-      }}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerLeave={handlePointerUp}
-    >
-      {/* Immersive Full-Window Glass Overlay during Gesture */}
-      <AnimatePresence>
-        {isGesturing && (
-          <motion.div 
-            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-            animate={{ opacity: 1, backdropFilter: "blur(20px)" }}
-            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 bg-black/40 z-[-1] pointer-events-none"
-          />
-        )}
-      </AnimatePresence>
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[4000] w-[90%] max-w-[360px] h-16 rounded-[32px] mobile-nav-capsule flex items-center justify-around px-2 border">
+      {NAV_ITEMS.map(({ id, label, Icon }, i) => {
+        const isActive = activeNav === id;
+        return (
+          <button
+            key={id}
+            onClick={() => onNavChange(id)}
+            className="relative flex flex-col items-center justify-center w-12 h-12 rounded-full focus:outline-none transition-all duration-300"
+          >
+            {/* Active Glass Pill Background */}
+            {isActive && (
+              <motion.div
+                layoutId="activePillBubble"
+                transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                className="absolute inset-0 bg-foreground/10 rounded-full border border-foreground/5 z-0"
+              />
+            )}
 
-      <div className="relative z-10 flex flex-col gap-8 items-end pr-4">
-        {NAV_ITEMS.map(({ id, label, Icon }, i) => {
-          const isHovered = hoverIdx === i;
-          const isActive = activeNav === id;
-          
-          return (
+            {/* Icon Wrapper with Micro-animations */}
             <motion.div
-              key={id}
-              ref={el => itemsRef.current[i] = el}
-              animate={{ 
-                scale: isHovered ? 2.2 : 1,
-                x: isHovered ? -15 : 0,
-                opacity: isGesturing ? (isHovered ? 1 : 0.15) : (isActive ? 1 : 0.25),
-                filter: isGesturing && !isHovered ? "blur(2px)" : "blur(0px)"
-              }}
-              transition={{ type: "spring", damping: 30, stiffness: 350 }}
-              className="flex items-center gap-4 relative"
+              animate={
+                isActive
+                  ? id === "home"
+                    ? { y: [0, -5, 0] }
+                    : id === "discover"
+                    ? { rotate: [0, 45, -45, 0] }
+                    : id === "albums"
+                    ? { rotate: 360 }
+                    : id === "blend"
+                    ? { scale: [1, 1.25, 0.95, 1.1, 1] }
+                    : id === "themes"
+                    ? { rotate: [0, -12, 12, -6, 6, 0] }
+                    : {}
+                  : {}
+              }
+              transition={
+                id === "albums" && isActive
+                  ? { duration: 4, repeat: Infinity, ease: "linear" }
+                  : { duration: 0.6, ease: "easeInOut" }
+              }
+              className={`relative z-10 transition-colors duration-300 ${
+                isActive ? "text-primary scale-110" : "opacity-40"
+              }`}
             >
-              <AnimatePresence>
-                {isHovered && (
-                  <motion.span
-                    initial={{ opacity: 0, x: 5 }}
-                    animate={{ opacity: 1, x: -10 }}
-                    exit={{ opacity: 0, x: 5 }}
-                    className="absolute right-10 text-[7px] font-black uppercase tracking-[4px] whitespace-nowrap text-white drop-shadow-[0_2px_10px_rgba(0,0,0,1)]"
-                  >
-                    {label}
-                  </motion.span>
-                )}
-              </AnimatePresence>
-
-              <div className={`transition-colors duration-300 ${isActive ? 'text-white' : 'text-white/40'}`}>
-                <Icon size={16} strokeWidth={isActive || isHovered ? 3 : 1.5} />
-              </div>
-
-              {isActive && !isGesturing && (
-                 <motion.div 
-                   layoutId="active-nav-indicator"
-                   className="absolute -right-5 w-1 h-8 bg-white rounded-full shadow-[0_0_20px_rgba(255,255,255,1)]" 
-                 />
-              )}
+              <Icon size={18} strokeWidth={isActive ? 2.5 : 1.8} />
             </motion.div>
-          );
-        })}
-      </div>
 
-      {/* Vertical Rail Line */}
-      <div className="absolute right-2 top-1/4 bottom-1/4 w-[1px] bg-white/5 pointer-events-none" />
+            {/* Active Dot Indicator */}
+            {isActive && (
+              <motion.div
+                layoutId="activeDot"
+                transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                className="absolute bottom-1 w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_var(--primary)] z-10"
+              />
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }

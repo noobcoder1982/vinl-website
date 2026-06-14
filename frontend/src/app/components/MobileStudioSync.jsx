@@ -5,24 +5,6 @@ import WaveSurfer from 'wavesurfer.js';
 
 /* ── REEL ONE (REEL) COMPONENT - Mechanical ── */
 function Reel({ isPlaying, reverse = false }) {
-  const rotation = useRef(0);
-  const rafRef = useRef(null);
-  const [angle, setAngle] = useState(0);
-
-  useEffect(() => {
-    if (!isPlaying) {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      return;
-    }
-    const spin = () => {
-      rotation.current += reverse ? -0.8 : 0.8;
-      setAngle(rotation.current);
-      rafRef.current = requestAnimationFrame(spin);
-    };
-    rafRef.current = requestAnimationFrame(spin);
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
-  }, [isPlaying, reverse]);
-
   return (
     <div className="relative aspect-square h-[85%] max-h-[300px] flex items-center justify-center flex-none pointer-events-none drop-shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
        {/* Industrial Chassis Edge */}
@@ -38,9 +20,12 @@ function Reel({ isPlaying, reverse = false }) {
        </div>
 
        {/* Reel Guts */}
-       <motion.div 
-         className="w-[96%] h-[96%] rounded-full relative flex items-center justify-center overflow-hidden transform-gpu bg-[#080808]"
-         style={{ rotate: angle }}
+       <div 
+         className="w-[96%] h-[96%] rounded-full relative flex items-center justify-center overflow-hidden bg-[#080808] will-change-transform transform-gpu"
+         style={isPlaying ? {
+           animation: `spin ${reverse ? '6s linear infinite reverse' : '6s linear infinite'}`,
+           willChange: "transform"
+         } : {}}
        >
           <div className="absolute inset-0 bg-gradient-to-tr from-black via-[#0a0a0a] to-[#111]" />
           
@@ -64,7 +49,7 @@ function Reel({ isPlaying, reverse = false }) {
              <div className="w-[10%] h-[120%] bg-white/[0.02] absolute rotate-120" />
              <div className="w-[10%] h-[120%] bg-white/[0.02] absolute rotate-240" />
           </div>
-       </motion.div>
+       </div>
        
        <div className="absolute w-8 h-8 bg-[#111] rounded-full border border-black z-20 shadow-2xl" />
     </div>
@@ -341,13 +326,15 @@ export function MobileStudioSync({
 export function MobileStudioBar({ song, isPlaying, onTogglePlay, onOpenFullscreen }) {
   if (!song) return null;
   return (
-    <div 
+    <motion.div 
+      initial={{ opacity: 0, y: 40 }}
+      animate={{ opacity: 1, y: 0 }}
       onClick={onOpenFullscreen}
-      className="h-[84px] w-full bg-black border-t border-white/5 flex items-center px-6 relative cursor-pointer"
+      className="fixed bottom-[92px] left-1/2 -translate-x-1/2 z-[1000] w-[90%] max-w-[360px] h-20 rounded-[32px] mobile-player-capsule text-white p-2.5 pl-5 pr-5 active:scale-[0.98] flex items-center justify-between cursor-pointer border overflow-hidden transition-all"
     >
        <div className="absolute left-0 top-0 bottom-0 w-2 bg-white" />
        <div className="flex-1 min-w-0 pr-4">
-          <h3 className="text-white font-black text-lg leading-none truncate uppercase tracking-tighter italic">{song.title}</h3>
+          <h3 className="font-black text-[15px] leading-none truncate uppercase tracking-tighter italic">{song.title}</h3>
           <div className="flex items-center gap-2 mt-2">
              <span className="w-1 h-1 rounded-full bg-green-400 animate-pulse" />
              <p className="text-white/40 font-black text-[9px] uppercase tracking-widest italic">Live Mix Active</p>
@@ -355,10 +342,10 @@ export function MobileStudioBar({ song, isPlaying, onTogglePlay, onOpenFullscree
        </div>
        <button 
          onClick={(e) => { e.stopPropagation(); onTogglePlay(); }}
-         className="w-14 h-14 rounded-full bg-white flex items-center justify-center text-black active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+         className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] flex-none"
        >
-          {isPlaying ? <Pause size={22} className="fill-current" /> : <Play size={22} className="fill-current ml-1" />}
+          {isPlaying ? <Pause size={18} className="fill-current" /> : <Play size={18} className="fill-current ml-1" />}
        </button>
-    </div>
+    </motion.div>
   );
 }

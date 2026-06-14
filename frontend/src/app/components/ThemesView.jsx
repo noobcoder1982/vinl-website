@@ -307,7 +307,7 @@ export function ThemesView({ currentTheme, onThemeChange, accentColor, onAccentC
   const activeThemeObj = themes.find(t => t.id === currentTheme) || themes[0];
 
   return (
-    <div className="w-full h-full bg-background text-foreground overflow-y-auto no-scrollbar scroll-smooth relative p-6 md:p-12 pb-32">
+    <div className="w-full h-full bg-background text-foreground overflow-y-auto no-scrollbar scroll-smooth relative p-4 pb-36 md:p-12">
       
       {/* ── ATMOSPHERIC BACKGROUND ── */}
       <div className="fixed inset-0 pointer-events-none z-0">
@@ -322,35 +322,35 @@ export function ThemesView({ currentTheme, onThemeChange, accentColor, onAccentC
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.04] mix-blend-overlay pointer-events-none" />
       </div>
 
-      <div className="relative z-10 max-w-[1000px] mx-auto flex flex-col gap-16">
+      <div className="relative z-10 max-w-[1000px] mx-auto flex flex-col gap-10 md:gap-16">
         
         {/* Header Section */}
-        <header className="flex flex-col gap-6">
+        <header className="flex flex-col gap-4 md:gap-6 pt-4 md:pt-0">
            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                 <Palette size={18} className="text-primary" />
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl md:rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
+                 <Palette size={16} className="text-primary" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-[5px] text-primary">Station Ambiance_Control</span>
+              <span className="text-[8px] md:text-[10px] font-black uppercase tracking-[3px] md:tracking-[5px] text-primary">Station Ambiance_Control</span>
            </div>
            
-           <div className="flex flex-col gap-2">
-              <h1 className="text-6xl md:text-8xl font-black italic uppercase tracking-tighter leading-none">
+           <div className="flex flex-col gap-1 md:gap-2">
+              <h1 className="text-4xl md:text-8xl font-black italic uppercase tracking-tighter leading-none">
                  The <span className="text-primary">Atmospheres.</span>
               </h1>
-              <p className="text-lg md:text-xl font-bold opacity-30 max-w-xl italic uppercase tracking-tight">
+              <p className="text-xs md:text-xl font-bold opacity-30 max-w-xl italic uppercase tracking-tight leading-relaxed">
                  Customize your workspace resonance. Every atmosphere adapts the entire ecosystem to your creative flow.
               </p>
            </div>
         </header>
 
         {/* Global Themes Grid */}
-        <section className="flex flex-col gap-8">
+        <section className="flex flex-col gap-6 md:gap-8">
            <div className="flex items-center gap-4">
-              <h2 className="text-sm font-black uppercase tracking-[4px] text-foreground/30">Standard Operating Environments</h2>
+              <h2 className="text-[9px] md:text-sm font-black uppercase tracking-[3px] md:tracking-[4px] text-foreground/30">Standard Operating Environments</h2>
               <div className="h-[1px] flex-1 bg-border/20" />
            </div>
 
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+           <div className="grid grid-cols-2 md:grid-cols-2 gap-3 md:gap-6">
               {themes.map((theme) => {
                  const isActive = currentTheme === theme.id;
                  const Icon = theme.icon;
@@ -361,78 +361,98 @@ export function ThemesView({ currentTheme, onThemeChange, accentColor, onAccentC
                     speed: 4, 
                     chaos: 5, 
                     intensity: 15,
-                    className: "rounded-[32px] overflow-hidden" 
-                 } : { className: "rounded-[32px] overflow-hidden border border-border/40 hover:border-border transition-all bg-card/40 backdrop-blur-3xl group" };
+                    className: "rounded-[24px] md:rounded-[32px] overflow-hidden" 
+                 } : { className: "rounded-[24px] md:rounded-[32px] overflow-hidden border border-border/40 hover:border-border transition-all bg-card/40 backdrop-blur-3xl group" };
 
                  return (
                     <div 
                       key={theme.id}
-                      onMouseEnter={() => setHoveredTheme(theme)}
-                      onMouseLeave={() => setHoveredTheme(null)}
+                      onMouseEnter={() => !isMobile && setHoveredTheme(theme)}
+                      onMouseLeave={() => !isMobile && setHoveredTheme(null)}
                       onClick={() => onThemeChange(theme.id)}
                       className="cursor-pointer"
                     >
                        <CardWrapper {...wrapperProps}>
-                          <div className={`p-8 flex flex-col gap-8 relative h-full ${isActive ? 'bg-card' : ''}`}>
+                          <div className={`p-4 md:p-8 flex flex-col gap-4 md:gap-8 relative h-full ${isActive ? 'bg-card' : ''}`}>
                              <div className="flex items-center justify-between">
-                                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500
+                                <div className={`w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center transition-all duration-500
                                    ${isActive ? 'bg-primary text-background' : 'bg-foreground/5 text-foreground/40 group-hover:bg-foreground/10'}
                                 `}>
-                                   <Icon size={24} />
+                                   <Icon size={isMobile ? 18 : 24} />
                                 </div>
                                 {isActive && (
-                                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-2 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
-                                      <Check size={12} className="text-primary" />
-                                      <span className="text-[9px] font-black uppercase tracking-widest text-primary">Active</span>
+                                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-1 md:gap-2 px-2 py-0.5 md:px-3 md:py-1 bg-primary/10 rounded-full border border-primary/20">
+                                      <Check size={isMobile ? 10 : 12} className="text-primary" />
+                                      <span className="text-[8px] md:text-[9px] font-black uppercase tracking-widest text-primary">Active</span>
                                    </motion.div>
                                 )}
                              </div>
 
-                             <div className="flex flex-col gap-2">
-                                <h3 className={`text-3xl font-black italic uppercase tracking-tighter ${isActive ? 'text-foreground' : 'text-foreground/40'}`}>
+                             <div className="flex flex-col gap-1 md:gap-2">
+                                <h3 className={`text-base md:text-3xl font-black italic uppercase tracking-tighter ${isActive ? 'text-foreground' : 'text-foreground/40'}`}>
                                    {theme.name}
                                 </h3>
-                                <p className="text-sm font-bold opacity-30 leading-relaxed max-w-[280px]">
-                                   {theme.desc}
-                                </p>
+                                {!isMobile && (
+                                   <p className="text-xs md:text-sm font-bold opacity-30 leading-relaxed max-w-[280px]">
+                                      {theme.desc}
+                                   </p>
+                                )}
                              </div>
 
-                             {/* Theme Specific Interaction (Color Changer) */}
-                             <AnimatePresence>
-                                {isActive && (theme.id === 'white' || theme.id === 'neon') && (
-                                   <motion.div 
-                                      initial={{ y: 20, opacity: 0 }}
-                                      animate={{ y: 0, opacity: 1 }}
-                                      exit={{ y: 20, opacity: 0 }}
-                                      className="pt-6 border-t border-border/40"
-                                      onClick={(e) => e.stopPropagation()}
-                                   >
-                                      <ColorChanger 
-                                         presets={theme.id === 'white' ? STARK_PRESETS : NEON_PRESETS}
-                                         currentAccent={accentColor}
-                                         onAccentChange={onAccentChange}
-                                         title="Accent_Resonance"
-                                      />
-                                   </motion.div>
-                                )}
-                             </AnimatePresence>
+                             {/* Theme Specific Interaction (Color Changer) on Desktop */}
+                             {!isMobile && (
+                                <AnimatePresence>
+                                   {isActive && (theme.id === 'white' || theme.id === 'neon') && (
+                                      <motion.div 
+                                         initial={{ y: 20, opacity: 0 }}
+                                         animate={{ y: 0, opacity: 1 }}
+                                         exit={{ y: 20, opacity: 0 }}
+                                         className="pt-6 border-t border-border/40"
+                                         onClick={(e) => e.stopPropagation()}
+                                      >
+                                         <ColorChanger 
+                                            presets={theme.id === 'white' ? STARK_PRESETS : NEON_PRESETS}
+                                            currentAccent={accentColor}
+                                            onAccentChange={onAccentChange}
+                                            title="Accent_Resonance"
+                                         />
+                                      </motion.div>
+                                   )}
+                                </AnimatePresence>
+                             )}
                           </div>
                        </CardWrapper>
                     </div>
                  );
               })}
            </div>
+
+           {/* Mobile-Friendly External Accent Color Changer */}
+           {isMobile && activeThemeObj && (activeThemeObj.id === 'white' || activeThemeObj.id === 'neon') && (
+              <motion.div 
+                 initial={{ y: 15, opacity: 0 }}
+                 animate={{ y: 0, opacity: 1 }}
+                 className="p-5 rounded-[24px] bg-card border border-border/60"
+              >
+                 <ColorChanger 
+                    presets={activeThemeObj.id === 'white' ? STARK_PRESETS : NEON_PRESETS}
+                    currentAccent={accentColor}
+                    onAccentChange={onAccentChange}
+                    title="Accent_Resonance"
+                 />
+              </motion.div>
+           )}
         </section>
 
         {/* Elite Mobile Themes Barrier */}
-        <section className="flex flex-col gap-10 pt-10 border-t border-border/20">
-           <div className="flex md:flex-row flex-col items-center justify-between gap-6">
-              <div className="flex flex-col gap-2">
+        <section className="flex flex-col gap-6 md:gap-10 pt-6 md:pt-10 border-t border-border/20">
+           <div className="flex md:flex-row flex-col items-start md:items-center justify-between gap-4 md:gap-6">
+              <div className="flex flex-col gap-1">
                  <div className="flex items-center gap-2">
-                    <Sparkles size={14} className="text-amber-500" />
-                    <span className="text-[10px] font-black uppercase tracking-[5px] text-amber-500">Elite Hardware Synchronization</span>
+                    <Sparkles size={12} className="text-amber-500" />
+                    <span className="text-[8px] md:text-[10px] font-black uppercase tracking-[3px] md:tracking-[5px] text-amber-500">Elite Hardware Synchronization</span>
                  </div>
-                 <h2 className="text-4xl font-black italic uppercase tracking-tighter">Mobile Exclusive Chassis</h2>
+                 <h2 className="text-2xl md:text-4xl font-black italic uppercase tracking-tighter">Mobile Exclusive Chassis</h2>
               </div>
               
               {!isMobile && (
@@ -443,37 +463,69 @@ export function ThemesView({ currentTheme, onThemeChange, accentColor, onAccentC
               )}
            </div>
 
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 opacity-60">
-              {eliteMobileThemes.map((theme) => (
-                 <div key={theme.id} className="p-8 rounded-[32px] border border-border/20 bg-foreground/[0.02] flex flex-col gap-6 relative group overflow-hidden">
-                    <div className="absolute top-0 right-0 p-8">
-                       <Lock size={20} className="text-foreground/10" />
-                    </div>
-                    <div className="w-14 h-14 rounded-2xl bg-foreground/5 flex items-center justify-center text-foreground/40">
-                       <theme.icon size={24} />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                       <h3 className="text-2xl font-black italic uppercase tracking-tighter text-foreground/40">{theme.name}</h3>
-                       <p className="text-sm font-medium opacity-20 leading-relaxed max-w-[260px]">{theme.desc}</p>
-                    </div>
-                    <div className="pt-6 border-t border-border/10">
-                       <span className="text-[9px] font-black uppercase tracking-[3px] opacity-10 italic">Requires Smartphone Handshake</span>
-                    </div>
-                 </div>
-              ))}
-           </div>
+            <div className={`grid grid-cols-2 md:grid-cols-2 gap-3 md:gap-6 ${isMobile ? '' : 'opacity-60'}`}>
+               {eliteMobileThemes.map((theme) => {
+                  const isActive = currentTheme === theme.id;
+                  return (
+                     <div 
+                        key={theme.id} 
+                        onClick={() => isMobile && onThemeChange(theme.id)}
+                        className={`p-4 md:p-8 rounded-[24px] md:rounded-[32px] border flex flex-col gap-3 md:gap-6 relative group overflow-hidden transition-all duration-300 ${
+                           isMobile ? 'cursor-pointer active:scale-[0.98]' : ''
+                        } ${
+                           isActive 
+                             ? 'bg-card border-primary shadow-[0_0_20px_rgba(255,255,255,0.05)]' 
+                             : 'border-border/20 bg-foreground/[0.02] hover:border-border/40'
+                        }`}
+                     >
+                        <div className="absolute top-4 right-4 md:top-8 md:right-8">
+                           {isMobile ? (
+                              isActive ? (
+                                 <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="flex items-center gap-1 px-1.5 py-0.5 bg-primary/10 rounded-full border border-primary/20">
+                                    <Check size={8} className="text-primary" />
+                                    <span className="text-[7px] font-black uppercase tracking-widest text-primary">Active</span>
+                                 </motion.div>
+                              ) : null
+                           ) : (
+                              <Lock size={20} className="text-foreground/10" />
+                           )}
+                        </div>
+                        <div className={`w-10 h-10 md:w-14 md:h-14 rounded-xl md:rounded-2xl flex items-center justify-center transition-all duration-500 ${
+                           isActive ? 'bg-primary text-background' : 'bg-foreground/5 text-foreground/40'
+                        }`}>
+                           <theme.icon size={isMobile ? 18 : 24} />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                           <h3 className={`text-base md:text-2xl font-black italic uppercase tracking-tighter transition-colors ${
+                              isActive ? 'text-foreground' : 'text-foreground/40'
+                           }`}>{theme.name}</h3>
+                           {!isMobile && (
+                              <p className={`text-xs md:text-sm font-medium leading-relaxed max-w-[260px] transition-opacity duration-500 ${
+                                 isActive ? 'opacity-60' : 'opacity-20'
+                              }`}>{theme.desc}</p>
+                           )}
+                        </div>
+                        <div className="pt-4 md:pt-6 border-t border-border/10">
+                           <span className="text-[7px] md:text-[9px] font-black uppercase tracking-[2px] md:tracking-[3px] opacity-20 italic">
+                              {isMobile ? "Hardware Uplink Connected" : "Requires Smartphone Handshake"}
+                           </span>
+                        </div>
+                     </div>
+                  );
+               })}
+            </div>
         </section>
 
         {/* Persistence Summary */}
-        <div className="p-10 rounded-[40px] bg-card/60 backdrop-blur-3xl border border-border/60 flex md:flex-row flex-col items-center gap-10">
-           <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-none border border-primary/20">
-              {isMobile ? <Smartphone size={36} /> : <Monitor size={36} />}
+        <div className="p-6 md:p-10 rounded-[32px] md:rounded-[40px] bg-card/60 backdrop-blur-3xl border border-border/60 flex md:flex-row flex-col items-center gap-6 md:gap-10">
+           <div className="w-14 h-14 md:w-20 md:h-20 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-none border border-primary/20">
+              {isMobile ? <Smartphone size={24} /> : <Monitor size={36} />}
            </div>
-           <div className="flex flex-col gap-2">
-              <h4 className="text-xl font-black italic uppercase tracking-tighter">Persistence Protocol Active</h4>
-              <p className="text-base font-bold opacity-30 leading-relaxed">
+           <div className="flex flex-col gap-1 md:gap-2">
+              <h4 className="text-base md:text-xl font-black italic uppercase tracking-tighter">Persistence Protocol Active</h4>
+              <p className="text-xs md:text-base font-bold opacity-30 leading-relaxed">
                  {isMobile 
-                   ? "Every aesthetic choice you make is synchronized across your personal neural network. Tap any chassis to reconfigure your studio playback engine."
+                   ? "Every choice is synchronized across your neural network. Tap any chassis to update your play engine."
                    : "Terminal-level atmospheres are fully unlocked. However, high-fidelity mechanical chassis (Tape Deck, Reel One) are purpose-built for touch interfaces and require a mobile mobile-specific uplink."
                  }
               </p>

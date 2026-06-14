@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const followSchema = new mongoose.Schema({
   follower: {
@@ -25,4 +25,4 @@ const followSchema = new mongoose.Schema({
 // Prevent duplicate follows
 followSchema.index({ follower: 1, following: 1 }, { unique: true });
 
-module.exports = mongoose.model('Follow', followSchema);
+export default mongoose.model('Follow', followSchema);

@@ -3,80 +3,159 @@ import { ChevronLeft, Heart, SkipBack, SkipForward, Play, Pause, Shuffle, Repeat
 import { motion, AnimatePresence } from "motion/react";
 import { MobilePlaylistSheet } from "./MobilePlaylistSheet";
 
-/* ──────────────────────────────────────────── 
-    ULTRA-RESPONSIVE CLEAR-SERIES CASSETTE
-   ──────────────────────────────────────────── */
-function CassetteReel({ isPlaying, speed = 1 }) {
-  const rotation = isPlaying ? 360 : -360;
-  const duration = isPlaying ? 4 / speed : 12;
+/* ── SPINDLE COMPONENT (Realistic Tape Spool Winding Physics) ── */
+function Spindle({ isPlaying, progress, isLeft }) {
+  // Spool diameter dynamics: base hub size is 16px, maximum tape thickness is 14px.
+  // Left spool shrinks as track progresses, right spool grows.
+  const baseRadius = 16;
+  const maxTapeWidth = 14;
+  const tapeRadius = isLeft
+    ? baseRadius + (1 - progress / 100) * maxTapeWidth
+    : baseRadius + (progress / 100) * maxTapeWidth;
 
   return (
-    <div className="relative w-[clamp(44px,11vw,56px)] h-[clamp(44px,11vw,56px)] flex items-center justify-center">
-      <div className="absolute inset-0 rounded-full border-[3px] border-black/90 bg-[#111] shadow-[inset_0_4px_10px_rgba(0,0,0,1)]" />
-      <motion.div 
-        animate={{ rotate: rotation }}
-        transition={{ duration, repeat: Infinity, ease: "linear" }}
-        className="w-[72%] h-[72%] aspect-square rounded-full border-[clamp(3px,1vw,5px)] border-[#E5A632] flex items-center justify-center relative"
+    <div className="relative w-[76px] h-[76px] flex items-center justify-center flex-none">
+      {/* Wound magnetic tape layers (animated background lines) */}
+      <div 
+        className="absolute rounded-full bg-[#211b15] border border-black/60 shadow-md flex items-center justify-center transition-all duration-300"
+        style={{ 
+          width: `${tapeRadius * 2}px`, 
+          height: `${tapeRadius * 2}px`,
+          backgroundImage: "repeating-radial-gradient(circle, #2d2319 0px, #18120c 1.5px, #2d2319 3px)"
+        }}
+      />
+      
+      {/* Central golden/amber cog hub */}
+      <div 
+        className="w-9 h-9 rounded-full bg-[#111] border-2 border-[#E5A632] flex items-center justify-center relative shadow-[inset_0_3px_6px_rgba(0,0,0,0.9)] z-10"
+        style={isPlaying ? {
+          animation: "spin 5s linear infinite",
+          willChange: "transform"
+        } : {}}
       >
-        <div className="w-[4px] h-[4px] bg-white rounded-full z-20 shadow-glow" />
-        {[0, 120, 240].map((deg) => (
+        {/* Hub spindle teeth */}
+        {[0, 60, 120, 180, 240, 300].map((deg) => (
           <div 
             key={deg} 
-            className="absolute w-[3px] h-[8px] bg-[#E5A632] rounded-full"
-            style={{ transform: `rotate(${deg}deg) translateY(-6px)` }}
+            className="absolute w-[2px] h-[6px] bg-[#E5A632] rounded-full"
+            style={{ transform: `rotate(${deg}deg) translateY(-5px)` }}
           />
         ))}
-      </motion.div>
+        {/* Center hole */}
+        <div className="w-3.5 h-3.5 rounded-full bg-black shadow-[inset_0_2px_4px_rgba(0,0,0,0.8)] flex items-center justify-center z-20">
+          <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
+        </div>
+      </div>
     </div>
   );
 }
 
+/* ── RETRO HORIZONTAL CASSETTE SHELL ── */
 function RetroCassette({ song, isPlaying, progress }) {
   return (
-    <motion.div 
-      animate={isPlaying ? { scale: [1, 1.002, 1] } : {}}
-      transition={{ duration: 0.15, repeat: Infinity }}
-      className="relative w-[clamp(170px,45vw,220px)] h-[clamp(280px,75vw,360px)] bg-white/5 backdrop-blur-xl rounded-2xl shadow-[0_30px_80px_rgba(0,0,0,0.8)] flex flex-col items-center overflow-hidden border border-white/20 box-border transform-gpu"
-    >
-       <div 
-         className="absolute inset-0 opacity-40 transition-colors duration-2000"
-         style={{ backgroundColor: song?.color || '#981D26' }}
-       />
-       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 mix-blend-overlay" />
+    <div className="relative w-[92%] max-w-[310px] aspect-[1.58] bg-[#101014]/95 rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.95),inset_0_1px_2px_rgba(255,255,255,0.06)] border border-white/[0.08] flex flex-col justify-between p-3 select-none overflow-hidden transform-gpu">
+      {/* Theme highlight color sheen */}
+      <div 
+        className="absolute inset-0 opacity-[0.12] mix-blend-color-dodge transition-colors duration-1000 pointer-events-none"
+        style={{ backgroundColor: song?.color || '#E5A632' }}
+      />
+      
+      {/* Retro noise grain */}
+      <div className="absolute inset-0 bg-noise opacity-5 pointer-events-none" />
 
-       {/* Side Info */}
-       <div className="absolute left-[clamp(8px,2vw,14px)] top-6 bottom-6 flex flex-col items-center justify-between z-10 w-[clamp(24px,6vw,32px)]">
-          <span className="text-white/40 font-black text-[clamp(14px,4vw,18px)] uppercase tracking-[-1px] italic leading-none origin-center rotate-180" style={{ writingMode: 'vertical-rl' }}>VINL. PRO-SERIES</span>
+      {/* Cassette Top Header */}
+      <div className="flex justify-between items-center z-10 px-1.5">
+        <span className="text-white/30 text-[9px] font-black tracking-[3px] uppercase italic">VINL. PRO-SERIES</span>
+        <span className="text-white/40 font-bold text-[9px] tracking-widest uppercase bg-white/5 px-2 py-0.5 rounded border border-white/5">SIDE A</span>
+      </div>
+
+      {/* Clear Acrylic Central Chamber */}
+      <div className="relative h-[65%] w-full bg-[#070709]/80 rounded-xl border border-white/5 shadow-[inset_0_10px_20px_rgba(0,0,0,0.95)] flex items-center justify-center z-10 overflow-hidden">
+        {/* Spool guide rollers */}
+        <div className="absolute left-3 w-1.5 h-1.5 rounded-full bg-zinc-700 shadow-inner" />
+        <div className="absolute right-3 w-1.5 h-1.5 rounded-full bg-zinc-700 shadow-inner" />
+        
+        {/* Horizontal running tape line at the bottom */}
+        <div className="absolute bottom-[28%] left-[25%] right-[25%] h-[2px] bg-[#1a130e] opacity-90" />
+
+        {/* Spindles */}
+        <div className="flex gap-6 items-center">
+          <Spindle isPlaying={isPlaying} progress={progress} isLeft={true} />
           
-          <div className="flex-1 flex flex-col items-center justify-center gap-4 py-8">
-             <div className="w-[clamp(24px,5vw,30px)] h-[clamp(24px,5vw,30px)] rounded-full overflow-hidden border border-white/20 shadow-glow">
-                <img src={song?.imageUrl} className="w-full h-full object-cover" />
-             </div>
-             <span 
-                className="text-white font-black text-[clamp(8px,2vw,10px)] uppercase tracking-[3px] origin-center rotate-180 truncate h-20" 
-                style={{ writingMode: 'vertical-rl' }}
-             >
-                {song?.title || "RAW SOURCE"}
-             </span>
+          {/* Viewport markers */}
+          <div className="flex flex-col items-center justify-center gap-1.5 opacity-30 z-20">
+            <div className="w-1.5 h-[1px] bg-white" />
+            <div className="w-3 h-[1px] bg-white" />
+            <div className="w-1.5 h-[1px] bg-white" />
           </div>
-       </div>
+          
+          <Spindle isPlaying={isPlaying} progress={progress} isLeft={false} />
+        </div>
+      </div>
 
-       {/* Signal Strip */}
-       <div className="absolute right-0 top-0 bottom-0 w-[clamp(35px,10vw,50px)] bg-[#E03C30]/5 backdrop-blur-md flex flex-col items-center justify-center py-10 z-10 border-l border-white/5">
-          <span className="text-[#E03C30] font-black text-[clamp(8px,2vw,10px)] uppercase tracking-[6px] origin-center rotate-180 drop-shadow-glow" style={{ writingMode: 'vertical-rl' }}>DIGITAL SIGNAL</span>
-       </div>
+      {/* Cassette Metadata Footer */}
+      <div className="flex justify-between items-end z-10 px-1.5 pb-0.5">
+        <div className="flex flex-col min-w-0 pr-2">
+          <span className="text-white text-[11px] font-black tracking-tight leading-none uppercase truncate max-w-[140px]">{song?.title || "RAW SOURCE"}</span>
+          <span className="text-white/30 text-[8px] font-black tracking-[1.5px] uppercase mt-0.5 truncate max-w-[120px]">{song?.artist || "AUDIO ARCHITECT"}</span>
+        </div>
+        <div className="text-right flex-none">
+          <span className="text-[#E5A632] font-black text-[8px] tracking-wider uppercase opacity-85">CHROME / EQ 120µs</span>
+        </div>
+      </div>
 
-       {/* Center Reel Window */}
-       <div className="absolute left-[clamp(40px,12vw,55px)] right-[clamp(40px,12vw,55px)] top-[40px] bottom-[40px] bg-black/70 rounded-[clamp(30px,8vw,48px)] border-2 border-white/5 overflow-hidden flex flex-col items-center justify-between py-[clamp(15%,5vh,20%)] shadow-[inset_0_20px_40px_rgba(0,0,0,0.8)] z-10">
-          <div className="absolute inset-0 bg-gradient-to-tr from-white/5 via-transparent to-white/5 opacity-50" />
-          <CassetteReel isPlaying={isPlaying} />
-          <div className="h-6 w-2 bg-white/10 rounded-full animate-pulse" />
-          <CassetteReel isPlaying={isPlaying} />
-       </div>
-    </motion.div>
+      {/* Mechanical structural corner screws */}
+      <div className="absolute top-1 left-1 w-1 h-1 rounded-full bg-white/10 flex items-center justify-center border border-white/5"><div className="w-[0.5px] h-full bg-white/20 rotate-45" /></div>
+      <div className="absolute top-1 right-1 w-1 h-1 rounded-full bg-white/10 flex items-center justify-center border border-white/5"><div className="w-[0.5px] h-full bg-white/20 -rotate-45" /></div>
+      <div className="absolute bottom-1 left-1 w-1 h-1 rounded-full bg-white/10 flex items-center justify-center border border-white/5"><div className="w-[0.5px] h-full bg-white/20 -rotate-45" /></div>
+      <div className="absolute bottom-1 right-1 w-1 h-1 rounded-full bg-white/10 flex items-center justify-center border border-white/5"><div className="w-[0.5px] h-full bg-white/20 rotate-45" /></div>
+    </div>
   );
 }
 
+/* ── LED DUAL-CHANNEL PEAK LEVEL METER ── */
+function PeakMeter({ isPlaying }) {
+  const [levels, setLevels] = useState([2, 2]);
+
+  useEffect(() => {
+    if (!isPlaying) {
+      setLevels([1, 1]);
+      return;
+    }
+    const interval = setInterval(() => {
+      setLevels([
+        Math.floor(Math.random() * 8) + 1,
+        Math.floor(Math.random() * 8) + 1
+      ]);
+    }, 110);
+    return () => clearInterval(interval);
+  }, [isPlaying]);
+
+  return (
+    <div className="flex flex-col gap-1 w-32 mt-5 opacity-90 border border-white/5 bg-black/60 rounded-lg p-2 shadow-inner">
+      <div className="flex justify-between text-[7px] text-white/25 font-bold uppercase tracking-widest px-0.5 mb-1">
+        <span>L CH</span>
+        <span>R CH</span>
+      </div>
+      {[0, 1].map((row) => (
+        <div key={row} className="flex gap-0.5 justify-between w-full h-1 bg-black/50 rounded overflow-hidden">
+          {Array.from({ length: 8 }).map((_, i) => {
+            const active = i < levels[row];
+            let color = "bg-zinc-800";
+            if (active) {
+              if (i < 5) color = "bg-[#4ade80] shadow-[0_0_5px_#4ade80]";
+              else if (i < 7) color = "bg-[#facc15] shadow-[0_0_5px_#facc15]";
+              else color = "bg-[#ef4444] shadow-[0_0_5px_#ef4444]";
+            }
+            return <div key={i} className={`flex-1 h-full transition-all duration-75 ${color}`} />;
+          })}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ── DETAILED CASSETTE DECK FULLSCREEN VIEW ── */
 export function MobileCassettePlayer({
   song, isPlaying, onTogglePlay, onBack, onNext, onPrev,
   progress, currentTime, onSeek, themeColor, isLiked, onToggleLike,
@@ -97,152 +176,153 @@ export function MobileCassettePlayer({
   const elapsed = (progress / 100) * totalSecs;
 
   const handlePointerMove = (e) => {
-     if (!isDragging || !progressBarRef.current) return;
-     const rect = progressBarRef.current.getBoundingClientRect();
-     const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
-     const pct = Math.max(0, Math.min(100, (x / rect.width) * 100));
-     onSeek(pct);
+    if (!isDragging || !progressBarRef.current) return;
+    const rect = progressBarRef.current.getBoundingClientRect();
+    const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
+    const pct = Math.max(0, Math.min(100, (x / rect.width) * 100));
+    onSeek(pct);
   };
 
   return (
     <motion.div
       drag="y"
       dragConstraints={{ top: 0, bottom: 0 }}
-      dragElastic={0.2}
+      dragElastic={0.25}
       onDragEnd={(e, { offset, velocity }) => {
-        if (offset.y > 100 || velocity.y > 500) {
+        if (offset.y > 100 || velocity.y > 400) {
           onBack();
         }
       }}
       initial={{ y: "100%" }}
       animate={{ y: 0 }}
       exit={{ y: "100%" }}
-      transition={{ type: "spring", damping: 35, stiffness: 400, mass: 0.8 }}
-      className="fixed inset-0 z-[200] flex flex-col bg-[#020202] transition-colors duration-500 overflow-hidden select-none touch-none"
+      transition={{ type: "spring", damping: 32, stiffness: 380, mass: 0.8 }}
+      className="fixed inset-0 z-[2000] flex flex-col bg-[#020202] transition-colors duration-500 overflow-hidden select-none touch-none"
     >
-      {/* Dynamic Shell Texture */}
-      <div className="absolute inset-0 bg-[#050505]">
-         <div 
-           className="absolute inset-0 opacity-40"
-           style={{ 
-             backgroundImage: `radial-gradient(circle at 50% 50%, #111 0%, transparent 1.5px)`,
-             backgroundSize: '24px 24px' 
-           }} 
-         />
-         <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] via-transparent to-black" />
+      {/* Background Deck Texture */}
+      <div className="absolute inset-0 bg-[#060608]">
+        <div 
+          className="absolute inset-0 opacity-[0.25]"
+          style={{ 
+            backgroundImage: `radial-gradient(circle at 50% 50%, #17171e 0%, transparent 1.5px)`,
+            backgroundSize: '20px 20px' 
+          }} 
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] via-transparent to-black" />
       </div>
 
-      {/* FIXED TOP HEADER */}
-      <div className="relative z-50 flex flex-col items-center pt-6 pb-2 flex-none">
-         <div className="w-16 h-1 bg-white/20 rounded-full mb-6 shadow-glow" />
-         <div className="flex flex-col items-center opacity-60">
-            <span className="text-white text-[10px] font-black uppercase tracking-[6px] italic">VINL. HIGH-FIDELITY</span>
-         </div>
+      {/* Drag handle header */}
+      <div className="relative z-50 flex flex-col items-center pt-5 pb-1 flex-none">
+        <div className="w-12 h-1 bg-white/20 rounded-full mb-4 shadow-[0_0_6px_rgba(255,255,255,0.15)]" />
+        <span className="text-white/40 text-[9px] font-black uppercase tracking-[5px] italic">VINL. SYNERGY DECK</span>
       </div>
 
-      {/* CENTRAL SYNERGY CORE - Responsive Centering */}
+      {/* Central Pocket Panel */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 min-h-0">
-         <div className="relative w-full max-w-[360px] aspect-[4/5] max-h-[70vh] bg-gradient-to-b from-[#0e0e0e] to-[#000] rounded-[64px] overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,1),inset_0_2px_10px_rgba(255,255,255,0.02)] border border-white/5 flex flex-col items-center justify-center p-4 mb-4 md:mb-8">
-            <div className="absolute top-0 left-0 w-full h-[50%] bg-gradient-to-b from-white/[0.03] via-transparent to-transparent pointer-events-none z-50" />
-            <RetroCassette song={song} isPlaying={isPlaying} progress={progress} />
-         </div>
-         
-         <div className="flex flex-col items-center text-center gap-2 mb-2">
-            <h2 className="text-white text-[clamp(24px,7vw,36px)] font-black tracking-tighter leading-none uppercase italic drop-shadow-lg truncate max-w-[90vw]">{song?.title || "RAW SOURCE"}</h2>
-            <p className="text-white/30 text-[clamp(10px,3vw,13px)] font-black uppercase tracking-[6px] leading-none">{song?.artist || "AUDIO ARCHITECT"}</p>
-         </div>
+        <div className="relative w-full max-w-[340px] aspect-[4/5] max-h-[65vh] bg-gradient-to-b from-[#0b0b0e] to-[#010102] rounded-[48px] overflow-hidden shadow-[0_45px_100px_rgba(0,0,0,1),inset_0_1px_8px_rgba(255,255,255,0.03)] border border-white/5 flex flex-col items-center justify-center p-4">
+          <div className="absolute top-0 left-0 w-full h-[45%] bg-gradient-to-b from-white/[0.02] via-transparent to-transparent pointer-events-none z-50" />
+          
+          <RetroCassette song={song} isPlaying={isPlaying} progress={progress} />
+          
+          <PeakMeter isPlaying={isPlaying} />
+        </div>
+        
+        {/* Meta Display */}
+        <div className="flex flex-col items-center text-center gap-1.5 mt-5 mb-1 flex-none">
+          <h2 className="text-white text-[28px] font-black tracking-tight leading-none uppercase italic truncate max-w-[85vw] drop-shadow-md">{song?.title || "RAW TAPE"}</h2>
+          <p className="text-white/30 text-[11px] font-black uppercase tracking-[5px] leading-none">{song?.artist || "AUDIO ARCHITECT"}</p>
+        </div>
       </div>
 
-      {/* MECHANICAL COMMAND CENTER - Tall Aspect Ratio Optimized */}
-      <div className="relative z-20 flex flex-col items-center w-full max-w-[420px] mx-auto px-8 gap-6 md:gap-10 pb-8 md:pb-16 flex-none">
+      {/* Control Console */}
+      <div className="relative z-20 flex flex-col items-center w-full max-w-[400px] mx-auto px-8 gap-5 pb-8 flex-none">
         
-        {/* Precision Central Grid */}
+        {/* Buttons Grid */}
         <div className="w-full grid grid-cols-3 items-center">
-           <div className="flex justify-start">
-              <button 
-                onClick={onToggleShuffle} 
-                className={`w-12 h-12 flex items-center justify-center transition-all active:scale-90 ${isShuffle ? 'text-white' : 'text-white/20'}`}
-              >
-                 <Shuffle size={20} className={isShuffle ? "drop-shadow-glow" : ""} />
-              </button>
-           </div>
+          <div className="flex justify-start">
+            <button 
+              onClick={onToggleShuffle} 
+              className={`w-11 h-11 flex items-center justify-center transition-all active:scale-90 rounded-full border border-transparent active:border-white/5 active:bg-white/[0.02] ${isShuffle ? 'text-white' : 'text-white/20'}`}
+            >
+              <Shuffle size={18} className={isShuffle ? "drop-shadow-glow" : ""} />
+            </button>
+          </div>
 
-           <div className="flex justify-center">
-              <div className="flex items-center gap-1.5 p-1.5 bg-white/[0.03] rounded-[32px] border border-white/5 shadow-inner">
-                 <motion.button 
-                   whileTap={{ scale: 0.92 }} 
-                   onClick={onPrev} 
-                   className="w-[clamp(48px,12vw,56px)] h-[clamp(440x,11vw,50px)] bg-white/5 border border-white/10 text-white flex items-center justify-center rounded-2xl active:bg-white/10 transition-all"
-                 >
-                    <SkipBack size={18} className="fill-current" />
-                 </motion.button>
-                 
-                 <motion.button 
-                   whileTap={{ scale: 0.92 }} 
-                   onClick={onTogglePlay} 
-                   className="w-[clamp(64px,16vw,76px)] h-[clamp(54px,13vw,62px)] bg-white text-black flex items-center justify-center rounded-[32px] shadow-glow transition-all"
-                 >
-                    {isPlaying ? <Pause size={28} className="fill-current" /> : <Play size={28} className="fill-current ml-1" />}
-                 </motion.button>
-                 
-                 <motion.button 
-                   whileTap={{ scale: 0.92 }} 
-                   onClick={onNext} 
-                   className="w-[clamp(48px,12vw,56px)] h-[clamp(440x,11vw,50px)] bg-white/5 border border-white/10 text-white flex items-center justify-center rounded-2xl active:bg-white/10 transition-all"
-                 >
-                    <SkipForward size={18} className="fill-current" />
-                 </motion.button>
-              </div>
-           </div>
-
-           <div className="flex justify-end">
-              <button 
-                onClick={onToggleRepeat} 
-                className={`w-12 h-12 flex items-center justify-center transition-all active:scale-90 ${repeatMode !== 'none' ? 'text-white' : 'text-white/20'}`}
+          <div className="flex justify-center">
+            <div className="flex items-center gap-1.5 p-1 bg-white/[0.02] rounded-full border border-white/5 shadow-inner">
+              <motion.button 
+                whileTap={{ scale: 0.94 }} 
+                onClick={onPrev} 
+                className="w-12 h-11 bg-white/5 border border-white/10 text-white flex items-center justify-center rounded-2xl active:bg-white/10 transition-all"
               >
-                 <Repeat size={20} className={repeatMode !== 'none' ? "drop-shadow-glow" : ""} />
-              </button>
-           </div>
+                <SkipBack size={16} className="fill-current" />
+              </motion.button>
+              
+              <motion.button 
+                whileTap={{ scale: 0.94 }} 
+                onClick={onTogglePlay} 
+                className="w-16 h-13 bg-white text-black flex items-center justify-center rounded-full shadow-[0_0_20px_rgba(255,255,255,0.15)] transition-all"
+              >
+                {isPlaying ? <Pause size={24} className="fill-current" /> : <Play size={24} className="fill-current ml-1" />}
+              </motion.button>
+              
+              <motion.button 
+                whileTap={{ scale: 0.94 }} 
+                onClick={onNext} 
+                className="w-12 h-11 bg-white/5 border border-white/10 text-white flex items-center justify-center rounded-2xl active:bg-white/10 transition-all"
+              >
+                <SkipForward size={16} className="fill-current" />
+              </motion.button>
+            </div>
+          </div>
+
+          <div className="flex justify-end">
+            <button 
+              onClick={onToggleRepeat} 
+              className={`w-11 h-11 flex items-center justify-center transition-all active:scale-90 rounded-full border border-transparent active:border-white/5 active:bg-white/[0.02] ${repeatMode !== 'none' ? 'text-white' : 'text-white/20'}`}
+            >
+              <Repeat size={18} className={repeatMode !== 'none' ? "drop-shadow-glow" : ""} />
+            </button>
+          </div>
         </div>
 
-        {/* DRAGGABLE KINETIC RAIL */}
-        <div className="w-full flex flex-col gap-4">
-           {/* Draggable Rail */}
-           <div 
-             ref={progressBarRef} 
-             onPointerDown={(e) => { setIsDragging(true); handlePointerMove(e); e.target.setPointerCapture(e.pointerId); }}
-             onPointerMove={handlePointerMove}
-             onPointerUp={(e) => { setIsDragging(false); e.target.releasePointerCapture(e.pointerId); }}
-             className="relative h-[clamp(6px,1.5vw,10px)] bg-white/5 rounded-full shadow-inner border border-white/5 cursor-pointer touch-none"
-           >
-              <div 
-                className="absolute inset-y-0 left-0 bg-white rounded-full shadow-[0_0_15px_white] transition-all" 
-                style={{ width: `${Math.min(progress, 100)}%` }} 
-              />
-              <motion.div 
-                animate={isDragging ? { scale: 1.5 } : { scale: 1 }}
-                className="absolute top-[-10px] bottom-[-10px] w-1.5 bg-[#E03C30] shadow-[0_0_20px_#E03C30] z-20 rounded-full -translate-x-1/2" 
-                style={{ left: `${Math.min(progress, 100)}%` }} 
-              />
-           </div>
+        {/* Scrubbing Track rail */}
+        <div className="w-full flex flex-col gap-2.5">
+          <div 
+            ref={progressBarRef} 
+            onPointerDown={(e) => { setIsDragging(true); handlePointerMove(e); e.target.setPointerCapture(e.pointerId); }}
+            onPointerMove={handlePointerMove}
+            onPointerUp={(e) => { setIsDragging(false); e.target.releasePointerCapture(e.pointerId); }}
+            className="relative h-2 bg-white/5 rounded-full shadow-inner border border-white/5 cursor-pointer touch-none"
+          >
+            <div 
+              className="absolute inset-y-0 left-0 bg-white rounded-full shadow-[0_0_10px_white] transition-all" 
+              style={{ width: `${Math.min(progress, 100)}%` }} 
+            />
+            <motion.div 
+              animate={isDragging ? { scale: 1.4 } : { scale: 1 }}
+              className="absolute top-[-8px] bottom-[-8px] w-1.5 bg-[#E5A632] shadow-[0_0_12px_#E5A632] z-20 rounded-full -translate-x-1/2" 
+              style={{ left: `${Math.min(progress, 100)}%` }} 
+            />
+          </div>
 
-           <div className="flex justify-between text-[11px] font-black tabular-nums text-white/40 tracking-[4px]">
-              <span>{formatTime(Math.min(elapsed, totalSecs))}</span>
-              <span>{formatTime(totalSecs)}</span>
-           </div>
+          <div className="flex justify-between text-[10px] font-black tabular-nums text-white/30 tracking-widest px-0.5">
+            <span>{formatTime(Math.min(elapsed, totalSecs))}</span>
+            <span>{formatTime(totalSecs)}</span>
+          </div>
         </div>
 
-        {/* UTILITY RACK */}
-        <div className="w-full flex justify-between px-8">
-           <button onClick={onToggleLike} className="p-3 active:scale-150 transition-all text-white/20 hover:text-red-500">
-              <Heart size={24} className={isLiked ? "text-red-600 fill-shadow-glow fill-current" : ""} />
-           </button>
-           <button onClick={() => setIsPlaylistOpen(true)} className="p-3 active:scale-150 transition-all text-white/20 hover:text-white">
-              <ListMusic size={24} />
-           </button>
-           <button onClick={onBack} className="p-3 active:scale-150 transition-all text-white/20 hover:text-white">
-              <X size={24} />
-           </button>
+        {/* Utility button Rack */}
+        <div className="w-full flex justify-between px-6">
+          <button onClick={onToggleLike} className="p-2.5 active:scale-130 transition-all text-white/20 hover:text-red-500">
+            <Heart size={20} className={isLiked ? "text-red-500 fill-current" : ""} />
+          </button>
+          <button onClick={() => setIsPlaylistOpen(true)} className="p-2.5 active:scale-130 transition-all text-white/20 hover:text-white">
+            <ListMusic size={20} />
+          </button>
+          <button onClick={onBack} className="p-2.5 active:scale-130 transition-all text-white/20 hover:text-white">
+            <X size={20} />
+          </button>
         </div>
       </div>
 
